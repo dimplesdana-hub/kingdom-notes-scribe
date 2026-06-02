@@ -11,9 +11,12 @@ export interface Transcript {
   preview: string;
   scriptures: string[];
   body: TranscriptParagraph[];
+  summary: string[];
+  actionItems: string[];
 }
 
 export interface TranscriptParagraph {
+  time: string;
   speaker: string;
   text: string;
 }
@@ -32,17 +35,31 @@ export const sampleTranscripts: Transcript[] = [
     scriptures: ["Romans 8:38", "Psalm 46:1", "Isaiah 41:10"],
     body: [
       {
+        time: "00:00",
         speaker: "Bro. Marcus Williams",
         text: "Good morning, brothers and sisters. Today we want to consider why we can have complete trust in Jehovah's promises. As we read at [Romans 8:38], nothing — neither death nor life — can separate us from God's love.",
       },
       {
+        time: "04:12",
         speaker: "Bro. Marcus Williams",
-        text: "The Watchtower article we studied last week brought out a beautiful point. Notice how [Psalm 46:1] reassures us: 'God is for us a refuge and strength, a help that is readily found in times of distress.'",
+        text: "First, consider the historical evidence. Second, consider the personal evidence. Third, consider the scriptural evidence. The Watchtower article we studied last week brought out a beautiful point. Notice how [Psalm 46:1] reassures us: 'God is for us a refuge and strength, a help that is readily found in times of distress.'",
       },
       {
+        time: "12:48",
         speaker: "Bro. Johnson",
         text: "Brother Johnson beautifully explained from [Isaiah 41:10] that we have no reason to fear, for Jehovah is with us.",
       },
+    ],
+    summary: [
+      "Jehovah's promises are trustworthy because of His unchanging love (Romans 8:38).",
+      "Three reasons given: historical, personal, and scriptural evidence.",
+      "Believers can rely on Jehovah as a refuge in distress (Psalm 46:1).",
+      "Fear is replaced by confidence when we trust in Jehovah (Isaiah 41:10).",
+    ],
+    actionItems: [
+      "Read the next Watchtower study article before next meeting.",
+      "Share Romans 8:38 with someone struggling this week.",
+      "Reflect personally on a time Jehovah proved trustworthy.",
     ],
   },
   {
@@ -57,7 +74,25 @@ export const sampleTranscripts: Transcript[] = [
       "The 2026 regional convention opened with a stirring keynote on pursuing peace in a divided world...",
     scriptures: ["Matthew 5:9", "Philippians 4:7", "Romans 12:18"],
     body: [
-      { speaker: "Bro. David Chen", text: "Welcome to our 2026 regional convention with the theme 'Pursue Peace!' Jesus said at [Matthew 5:9], 'Happy are the peacemakers.'" },
+      {
+        time: "00:00",
+        speaker: "Bro. David Chen",
+        text: "Welcome to our 2026 regional convention with the theme 'Pursue Peace!' Jesus said at [Matthew 5:9], 'Happy are the peacemakers.'",
+      },
+      {
+        time: "08:30",
+        speaker: "Bro. David Chen",
+        text: "Notice the peace described at [Philippians 4:7] — it surpasses all understanding. And [Romans 12:18] urges us: as far as it depends on us, be peaceable with all men.",
+      },
+    ],
+    summary: [
+      "The convention theme calls us to actively pursue peace.",
+      "True peace comes from God and surpasses human understanding.",
+      "Peace begins with our own conduct toward others.",
+    ],
+    actionItems: [
+      "Identify one relationship to actively pursue peace in this week.",
+      "Memorize Matthew 5:9.",
     ],
   },
   {
@@ -70,7 +105,18 @@ export const sampleTranscripts: Transcript[] = [
     duration: "1h 12 min",
     preview: "Personal study notes covering the image dream and its meaning today...",
     scriptures: ["Daniel 2:44"],
-    body: [{ speaker: "Self", text: "Today I'm studying the prophecy at [Daniel 2:44] — the Kingdom that will crush all others." }],
+    body: [
+      {
+        time: "00:00",
+        speaker: "Self",
+        text: "Today I'm studying the prophecy at [Daniel 2:44] — the Kingdom that will crush all others.",
+      },
+    ],
+    summary: [
+      "Daniel 2 outlines successive world powers ending in God's Kingdom.",
+      "The Kingdom of God will permanently replace human rule.",
+    ],
+    actionItems: ["Review Insight on the Scriptures entry on Daniel 2."],
   },
 ];
 
