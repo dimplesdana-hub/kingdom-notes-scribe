@@ -142,9 +142,9 @@ function Toggle({ label, value, onChange, icon: Icon }: { label: string; value: 
         onClick={() => onChange(!value)}
         role="switch"
         aria-checked={value}
-        className={`relative h-7 w-12 rounded-full transition-colors ${value ? "bg-primary" : "bg-muted"}`}
+        className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${value ? "bg-primary" : "bg-muted"}`}
       >
-        <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform ${value ? "translate-x-5" : "translate-x-0.5"}`} />
+        <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform ${value ? "translate-x-[26px]" : "translate-x-1"}`} />
       </button>
     </div>
   );
