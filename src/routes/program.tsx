@@ -54,7 +54,7 @@ function ProgramPage() {
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="text-xs tabular-nums text-muted-foreground">{p.time}</span>
-                      <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{p.type}</span>
+                      <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-primary">{p.type}</span>
                     </div>
                     <div className="mt-1 line-clamp-2 text-sm font-medium text-foreground">{p.title}</div>
                     {p.person && <div className="text-xs text-muted-foreground">{p.person}</div>}
