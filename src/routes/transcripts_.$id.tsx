@@ -1,9 +1,10 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, FileText, Sparkles, ListChecks, BookOpen } from "lucide-react";
+import { ArrowLeft, FileText, Sparkles, ListChecks, BookOpen, Share2 } from "lucide-react";
 import { sampleTranscripts } from "@/lib/sample-data";
 import { ScriptureText } from "@/components/ScriptureText";
 import { InlineScripture } from "@/components/InlineScripture";
+import { ShareSheet } from "@/components/ShareSheet";
 
 export const Route = createFileRoute("/transcripts_/$id")({
   head: () => ({ meta: [{ title: "Transcript — Kingdom Notes" }] }),
@@ -53,6 +54,18 @@ function TranscriptDetailPage() {
               {t.congregation && ` · ${t.congregation}`} · {t.date} · {t.duration}
             </div>
           </div>
+          <ShareSheet
+            transcript={t}
+            trigger={
+              <button
+                type="button"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-primary"
+                aria-label="Share"
+              >
+                <Share2 className="h-5 w-5" />
+              </button>
+            }
+          />
         </div>
 
         <div className="-mx-1 mt-3 flex gap-1 overflow-x-auto">
