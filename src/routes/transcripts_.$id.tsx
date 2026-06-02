@@ -54,6 +54,18 @@ function TranscriptDetailPage() {
               {t.congregation && ` · ${t.congregation}`} · {t.date} · {t.duration}
             </div>
           </div>
+          <ShareSheet
+            transcript={t}
+            trigger={
+              <button
+                type="button"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-primary"
+                aria-label="Share"
+              >
+                <Share2 className="h-5 w-5" />
+              </button>
+            }
+          />
         </div>
 
         <div className="-mx-1 mt-3 flex gap-1 overflow-x-auto">
