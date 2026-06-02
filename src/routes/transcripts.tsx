@@ -129,15 +129,15 @@ function TranscriptsPage() {
             <Link
               to="/transcripts/$id"
               params={{ id: t.id }}
-              className="block rounded-2xl bg-card p-4 shadow-card transition-transform active:scale-[0.99]"
+              className="block rounded-2xl border border-card-hairline bg-card p-4 shadow-card transition-all active:scale-[0.99] hover:shadow-elevated"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground/70">
                     <FileText className="h-5 w-5" />
                   </div>
                   <div className="min-w-0">
-                    <div className="text-xs font-medium text-primary">{t.type}</div>
+                    <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{t.type}</div>
                     <div className="line-clamp-1 font-semibold text-foreground">{t.title}</div>
                     <div className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
                       {t.speaker}{t.congregation && ` · ${t.congregation}`}
@@ -158,16 +158,16 @@ function TranscriptsPage() {
                   }
                 />
               </div>
-              <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{t.preview}</p>
+              <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-foreground-soft">{t.preview}</p>
               <div className="mt-3 flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">{t.date} · {t.duration}</span>
-                <span className="rounded-full bg-gold/25 px-2 py-0.5 font-medium text-gold-foreground dark:text-gold">{t.scriptures.length} scriptures</span>
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 font-medium text-primary">{t.scriptures.length} scriptures</span>
               </div>
             </Link>
           </li>
         ))}
         {items.length === 0 && (
-          <li className="rounded-2xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
+          <li className="rounded-2xl border border-dashed border-card-hairline bg-card p-10 text-center text-sm text-muted-foreground">
             No transcripts match your search yet.
           </li>
         )}
