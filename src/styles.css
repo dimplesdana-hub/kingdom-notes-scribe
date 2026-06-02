@@ -72,11 +72,12 @@
 }
 
 .dark {
-  /* dark navy #0D1B2A */
   --background: oklch(0.19 0.03 240);
-  --foreground: oklch(0.96 0.005 240);
+  --foreground: oklch(0.97 0.005 240);
+  --foreground-soft: oklch(0.78 0.01 240);
   --card: oklch(0.24 0.03 240);
   --card-foreground: oklch(0.96 0.005 240);
+  --card-border: oklch(0.30 0.025 240);
   --popover: oklch(0.24 0.03 240);
   --popover-foreground: oklch(0.96 0.005 240);
   --primary: oklch(0.75 0.19 45);
@@ -94,8 +95,11 @@
   --border: oklch(0.32 0.02 240);
   --input: oklch(0.32 0.02 240);
   --ring: oklch(0.75 0.19 45);
-  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 12px rgb(0 0 0 / 0.4);
-  --shadow-elevated: 0 8px 24px rgb(0 0 0 / 0.5);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.35), 0 6px 18px rgb(0 0 0 / 0.45);
+  --shadow-elevated: 0 12px 32px rgb(0 0 0 / 0.55);
+  --shadow-chip: 0 1px 2px rgb(0 0 0 / 0.4);
+  --gradient-header: linear-gradient(180deg, oklch(0.23 0.035 245) 0%, oklch(0.19 0.03 240) 100%);
+  --gradient-folder: linear-gradient(145deg, oklch(0.30 0.05 45) 0%, oklch(0.24 0.03 240) 75%);
 }
 
 @layer base {
