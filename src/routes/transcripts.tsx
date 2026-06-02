@@ -85,14 +85,19 @@ function TranscriptsPage() {
                     </div>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={(e) => e.preventDefault()}
-                  className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted"
-                  aria-label="More"
-                >
-                  <MoreVertical className="h-4 w-4" />
-                </button>
+                <ShareSheet
+                  transcript={t}
+                  trigger={
+                    <button
+                      type="button"
+                      onClick={(e) => e.preventDefault()}
+                      className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-primary"
+                      aria-label="Share"
+                    >
+                      <Share2 className="h-4 w-4" />
+                    </button>
+                  }
+                />
               </div>
               <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{t.preview}</p>
               <div className="mt-3 flex items-center justify-between text-xs">
