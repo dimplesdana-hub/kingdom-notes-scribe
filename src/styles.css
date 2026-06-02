@@ -45,15 +45,16 @@
   --card-foreground: oklch(0.18 0.03 230);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.18 0.03 230);
-  /* bright orange #F97316 */
-  --primary: oklch(0.60 0.17 55);
+  /* fruit orange */
+  --primary: oklch(0.72 0.20 45);
   --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.95 0.01 220);
   --secondary-foreground: oklch(0.2 0.03 230);
   --muted: oklch(0.95 0.008 240);
   --muted-foreground: oklch(0.5 0.02 240);
-  --accent: oklch(0.93 0.04 90);
-  --accent-foreground: oklch(0.2 0.03 230);
+  /* pale orange for soft surfaces / badges */
+  --accent: oklch(0.95 0.05 55);
+  --accent-foreground: oklch(0.45 0.18 45);
   /* warm gold #E8C547 */
   --gold: oklch(0.83 0.14 92);
   --gold-foreground: oklch(0.22 0.04 80);
@@ -61,7 +62,7 @@
   --destructive-foreground: oklch(0.99 0 0);
   --border: oklch(0.92 0.008 240);
   --input: oklch(0.92 0.008 240);
-  --ring: oklch(0.60 0.17 55);
+  --ring: oklch(0.72 0.20 45);
 
   --shadow-card: 0 1px 2px rgb(15 23 42 / 0.04), 0 4px 12px rgb(15 23 42 / 0.06);
   --shadow-elevated: 0 8px 24px rgb(15 23 42 / 0.10);
