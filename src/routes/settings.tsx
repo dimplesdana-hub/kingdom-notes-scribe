@@ -69,9 +69,9 @@ function SettingsPage() {
             onClick={toggle}
             role="switch"
             aria-checked={theme === "dark"}
-            className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${theme === "dark" ? "bg-primary" : "bg-muted"}`}
+            className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors ${theme === "dark" ? "bg-primary" : "bg-muted"}`}
           >
-            <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform ${theme === "dark" ? "translate-x-[26px]" : "translate-x-1"}`} />
+            <span className={`block h-6 w-6 rounded-full bg-white shadow-lg transition-transform duration-200 ${theme === "dark" ? "translate-x-[22px]" : "translate-x-0.5"}`} />
           </button>
         </div>
         <div className="px-4 py-3">
@@ -142,9 +142,9 @@ function Toggle({ label, value, onChange, icon: Icon }: { label: string; value: 
         onClick={() => onChange(!value)}
         role="switch"
         aria-checked={value}
-        className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${value ? "bg-primary" : "bg-muted"}`}
+        className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors ${value ? "bg-primary" : "bg-muted"}`}
       >
-        <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform ${value ? "translate-x-[26px]" : "translate-x-1"}`} />
+        <span className={`block h-6 w-6 rounded-full bg-white shadow-lg transition-transform duration-200 ${value ? "translate-x-[22px]" : "translate-x-0.5"}`} />
       </button>
     </div>
   );
