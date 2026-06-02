@@ -5,7 +5,7 @@ import { sampleTranscripts } from "@/lib/sample-data";
 import { ScriptureText } from "@/components/ScriptureText";
 import { InlineScripture } from "@/components/InlineScripture";
 
-export const Route = createFileRoute("/transcripts/$id")({
+export const Route = createFileRoute("/transcripts_/$id")({
   head: () => ({ meta: [{ title: "Transcript — Kingdom Notes" }] }),
   loader: ({ params }) => {
     const t = sampleTranscripts.find((x) => x.id === params.id);
