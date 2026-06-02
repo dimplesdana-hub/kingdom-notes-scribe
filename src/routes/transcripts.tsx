@@ -16,6 +16,17 @@ const FILTERS = ["All", "Meetings", "Assemblies", "Conventions", "Personal Study
 function TranscriptsPage() {
   const [active, setActive] = useState<(typeof FILTERS)[number]>("All");
   const [q, setQ] = useState("");
+  const { folders, addFolder } = useFolders("religion");
+  const [newFolder, setNewFolder] = useState("");
+  const [showNew, setShowNew] = useState(false);
+
+  const submitFolder = () => {
+    const v = newFolder.trim();
+    if (!v) return;
+    addFolder(v);
+    setNewFolder("");
+    setShowNew(false);
+  };
 
   const items = sampleTranscripts.filter((t) => {
     const fOk =
