@@ -104,17 +104,17 @@ function TranscriptsPage() {
             </div>
           )}
 
-          <div className="mt-2 grid grid-cols-2 gap-2.5">
+          <div className="mt-2 grid grid-cols-2 gap-2">
             {folders.map((f) => (
               <button
                 key={f.id}
-                className="flex items-center gap-2.5 rounded-2xl border border-card-hairline bg-folder-gradient p-3 text-left shadow-card transition-transform active:scale-[0.98] hover:shadow-elevated"
+                className="flex items-center gap-2 rounded-2xl border border-card-hairline bg-folder-gradient p-2.5 text-left shadow-card transition-transform active:scale-[0.98] hover:shadow-elevated"
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary">
-                  <FolderIcon className="h-5 w-5" />
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/12 text-primary">
+                  <FolderIcon className="h-4 w-4" />
                 </div>
                 <div className="min-w-0">
-                  <div className="line-clamp-1 text-sm font-semibold text-foreground">{f.name}</div>
+                  <div className="text-sm font-semibold leading-tight text-foreground">{f.name}</div>
                   <div className="text-[11px] text-muted-foreground">0 recordings</div>
                 </div>
               </button>
@@ -133,7 +133,7 @@ function TranscriptsPage() {
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground/70">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                     <FileText className="h-5 w-5" />
                   </div>
                   <div className="min-w-0">
