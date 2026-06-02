@@ -14,6 +14,7 @@ import { Route as TranscriptsRouteImport } from './routes/transcripts'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ProgramRouteImport } from './routes/program'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TranscriptsIdRouteImport } from './routes/transcripts.$id'
 
 const UpdatesRoute = UpdatesRouteImport.update({
   id: '/updates',
@@ -40,42 +41,69 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TranscriptsIdRoute = TranscriptsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => TranscriptsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/program': typeof ProgramRoute
   '/settings': typeof SettingsRoute
-  '/transcripts': typeof TranscriptsRoute
+  '/transcripts': typeof TranscriptsRouteWithChildren
   '/updates': typeof UpdatesRoute
+  '/transcripts/$id': typeof TranscriptsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/program': typeof ProgramRoute
   '/settings': typeof SettingsRoute
-  '/transcripts': typeof TranscriptsRoute
+  '/transcripts': typeof TranscriptsRouteWithChildren
   '/updates': typeof UpdatesRoute
+  '/transcripts/$id': typeof TranscriptsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/program': typeof ProgramRoute
   '/settings': typeof SettingsRoute
-  '/transcripts': typeof TranscriptsRoute
+  '/transcripts': typeof TranscriptsRouteWithChildren
   '/updates': typeof UpdatesRoute
+  '/transcripts/$id': typeof TranscriptsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/program' | '/settings' | '/transcripts' | '/updates'
+  fullPaths:
+    | '/'
+    | '/program'
+    | '/settings'
+    | '/transcripts'
+    | '/updates'
+    | '/transcripts/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/program' | '/settings' | '/transcripts' | '/updates'
-  id: '__root__' | '/' | '/program' | '/settings' | '/transcripts' | '/updates'
+  to:
+    | '/'
+    | '/program'
+    | '/settings'
+    | '/transcripts'
+    | '/updates'
+    | '/transcripts/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/program'
+    | '/settings'
+    | '/transcripts'
+    | '/updates'
+    | '/transcripts/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ProgramRoute: typeof ProgramRoute
   SettingsRoute: typeof SettingsRoute
-  TranscriptsRoute: typeof TranscriptsRoute
+  TranscriptsRoute: typeof TranscriptsRouteWithChildren
   UpdatesRoute: typeof UpdatesRoute
 }
 
@@ -116,14 +144,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/transcripts/$id': {
+      id: '/transcripts/$id'
+      path: '/$id'
+      fullPath: '/transcripts/$id'
+      preLoaderRoute: typeof TranscriptsIdRouteImport
+      parentRoute: typeof TranscriptsRoute
+    }
   }
 }
+
+interface TranscriptsRouteChildren {
+  TranscriptsIdRoute: typeof TranscriptsIdRoute
+}
+
+const TranscriptsRouteChildren: TranscriptsRouteChildren = {
+  TranscriptsIdRoute: TranscriptsIdRoute,
+}
+
+const TranscriptsRouteWithChildren = TranscriptsRoute._addFileChildren(
+  TranscriptsRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ProgramRoute: ProgramRoute,
   SettingsRoute: SettingsRoute,
-  TranscriptsRoute: TranscriptsRoute,
+  TranscriptsRoute: TranscriptsRouteWithChildren,
   UpdatesRoute: UpdatesRoute,
 }
 export const routeTree = rootRouteImport

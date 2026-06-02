@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Search, SlidersHorizontal, MoreVertical, FileText, Upload } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
@@ -65,29 +65,40 @@ function TranscriptsPage() {
 
       <ul className="mt-4 space-y-3">
         {items.map((t) => (
-          <li key={t.id} className="rounded-2xl bg-card p-4 shadow-card">
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <FileText className="h-5 w-5" />
-                </div>
-                <div className="min-w-0">
-                  <div className="text-xs font-medium text-primary">{t.type}</div>
-                  <div className="line-clamp-1 font-semibold text-foreground">{t.title}</div>
-                  <div className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
-                    {t.speaker}{t.congregation && ` · ${t.congregation}`}
+          <li key={t.id}>
+            <Link
+              to="/transcripts/$id"
+              params={{ id: t.id }}
+              className="block rounded-2xl bg-card p-4 shadow-card transition-transform active:scale-[0.99]"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <FileText className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs font-medium text-primary">{t.type}</div>
+                    <div className="line-clamp-1 font-semibold text-foreground">{t.title}</div>
+                    <div className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
+                      {t.speaker}{t.congregation && ` · ${t.congregation}`}
+                    </div>
                   </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={(e) => e.preventDefault()}
+                  className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted"
+                  aria-label="More"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </button>
               </div>
-              <button className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted">
-                <MoreVertical className="h-4 w-4" />
-              </button>
-            </div>
-            <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{t.preview}</p>
-            <div className="mt-3 flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">{t.date} · {t.duration}</span>
-              <span className="rounded-full bg-gold/25 px-2 py-0.5 font-medium text-gold-foreground dark:text-gold">{t.scriptures.length} scriptures</span>
-            </div>
+              <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{t.preview}</p>
+              <div className="mt-3 flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">{t.date} · {t.duration}</span>
+                <span className="rounded-full bg-gold/25 px-2 py-0.5 font-medium text-gold-foreground dark:text-gold">{t.scriptures.length} scriptures</span>
+              </div>
+            </Link>
           </li>
         ))}
         {items.length === 0 && (
