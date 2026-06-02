@@ -131,9 +131,6 @@
     color: var(--muted-foreground);
   }
 }
-  .safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 0.5rem); }
-  .safe-top { padding-top: max(env(safe-area-inset-top), 0.5rem); }
-}
 
 @keyframes record-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgb(239 68 68 / 0.6); }
