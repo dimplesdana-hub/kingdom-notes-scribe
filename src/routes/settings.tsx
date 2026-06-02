@@ -104,9 +104,9 @@ function SettingsPage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="mt-5 first:mt-0">
-      <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{title}</h2>
-      <div className="overflow-hidden rounded-2xl bg-card shadow-card divide-y divide-border">{children}</div>
+    <section className="mt-8 first:mt-2">
+      <h2 className="mb-3 px-2 text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{title}</h2>
+      <div className="overflow-hidden rounded-2xl border border-card-hairline bg-card shadow-card divide-y divide-card-hairline">{children}</div>
     </section>
   );
 }
