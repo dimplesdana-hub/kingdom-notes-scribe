@@ -11,6 +11,8 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { ThemeProvider } from "../lib/theme";
+import { BottomTabBar } from "../components/BottomTabBar";
 
 function NotFoundComponent() {
   return (
@@ -76,21 +78,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { name: "theme-color", content: "#006D77" },
+      { title: "Kingdom Notes — Smart Notes for Meetings & Assemblies" },
+      { name: "description", content: "Smart speech-to-text recording for Jehovah's Witnesses — capture meetings, assemblies, and personal study with scripture detection." },
+      { property: "og:title", content: "Kingdom Notes" },
+      { property: "og:description", content: "Smart speech-to-text recording for meetings, assemblies, conventions, and personal study." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
     ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
+  links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" },
     ],
   }),
   shellComponent: RootShell,
@@ -118,8 +120,12 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <ThemeProvider>
+        <div className="min-h-screen bg-background">
+          <Outlet />
+          <BottomTabBar />
+        </div>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
