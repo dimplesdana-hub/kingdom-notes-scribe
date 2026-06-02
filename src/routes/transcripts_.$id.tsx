@@ -1,9 +1,10 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, FileText, Sparkles, ListChecks, BookOpen } from "lucide-react";
+import { ArrowLeft, FileText, Sparkles, ListChecks, BookOpen, Share2 } from "lucide-react";
 import { sampleTranscripts } from "@/lib/sample-data";
 import { ScriptureText } from "@/components/ScriptureText";
 import { InlineScripture } from "@/components/InlineScripture";
+import { ShareSheet } from "@/components/ShareSheet";
 
 export const Route = createFileRoute("/transcripts_/$id")({
   head: () => ({ meta: [{ title: "Transcript — Kingdom Notes" }] }),
