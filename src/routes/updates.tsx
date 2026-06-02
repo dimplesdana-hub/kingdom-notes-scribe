@@ -47,7 +47,7 @@ function UpdatesPage() {
 function PubCard({ icon: Icon, kind, title, date, updated }: { icon: any; kind: string; title: string; date: string; updated: string }) {
   return (
     <article className="flex gap-4 rounded-2xl bg-card p-4 shadow-card">
-      <div className="flex h-20 w-16 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-gold/70 to-gold/25 text-gold-foreground">
+      <div className="flex h-20 w-16 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-gold to-gold/60 text-gold-foreground">
         <Icon className="h-7 w-7" />
       </div>
       <div className="min-w-0 flex-1">
