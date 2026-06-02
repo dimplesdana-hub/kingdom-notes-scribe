@@ -14,7 +14,7 @@ import { Route as TranscriptsRouteImport } from './routes/transcripts'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ProgramRouteImport } from './routes/program'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as TranscriptsIdRouteImport } from './routes/transcripts.$id'
+import { Route as TranscriptsIdRouteImport } from './routes/transcripts_.$id'
 
 const UpdatesRoute = UpdatesRouteImport.update({
   id: '/updates',
@@ -42,16 +42,16 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const TranscriptsIdRoute = TranscriptsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => TranscriptsRoute,
+  id: '/transcripts_/$id',
+  path: '/transcripts/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/program': typeof ProgramRoute
   '/settings': typeof SettingsRoute
-  '/transcripts': typeof TranscriptsRouteWithChildren
+  '/transcripts': typeof TranscriptsRoute
   '/updates': typeof UpdatesRoute
   '/transcripts/$id': typeof TranscriptsIdRoute
 }
@@ -59,7 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/program': typeof ProgramRoute
   '/settings': typeof SettingsRoute
-  '/transcripts': typeof TranscriptsRouteWithChildren
+  '/transcripts': typeof TranscriptsRoute
   '/updates': typeof UpdatesRoute
   '/transcripts/$id': typeof TranscriptsIdRoute
 }
@@ -68,9 +68,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/program': typeof ProgramRoute
   '/settings': typeof SettingsRoute
-  '/transcripts': typeof TranscriptsRouteWithChildren
+  '/transcripts': typeof TranscriptsRoute
   '/updates': typeof UpdatesRoute
-  '/transcripts/$id': typeof TranscriptsIdRoute
+  '/transcripts_/$id': typeof TranscriptsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -96,15 +96,16 @@ export interface FileRouteTypes {
     | '/settings'
     | '/transcripts'
     | '/updates'
-    | '/transcripts/$id'
+    | '/transcripts_/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ProgramRoute: typeof ProgramRoute
   SettingsRoute: typeof SettingsRoute
-  TranscriptsRoute: typeof TranscriptsRouteWithChildren
+  TranscriptsRoute: typeof TranscriptsRoute
   UpdatesRoute: typeof UpdatesRoute
+  TranscriptsIdRoute: typeof TranscriptsIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -144,35 +145,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/transcripts/$id': {
-      id: '/transcripts/$id'
-      path: '/$id'
+    '/transcripts_/$id': {
+      id: '/transcripts_/$id'
+      path: '/transcripts/$id'
       fullPath: '/transcripts/$id'
       preLoaderRoute: typeof TranscriptsIdRouteImport
-      parentRoute: typeof TranscriptsRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
-
-interface TranscriptsRouteChildren {
-  TranscriptsIdRoute: typeof TranscriptsIdRoute
-}
-
-const TranscriptsRouteChildren: TranscriptsRouteChildren = {
-  TranscriptsIdRoute: TranscriptsIdRoute,
-}
-
-const TranscriptsRouteWithChildren = TranscriptsRoute._addFileChildren(
-  TranscriptsRouteChildren,
-)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ProgramRoute: ProgramRoute,
   SettingsRoute: SettingsRoute,
-  TranscriptsRoute: TranscriptsRouteWithChildren,
+  TranscriptsRoute: TranscriptsRoute,
   UpdatesRoute: UpdatesRoute,
+  TranscriptsIdRoute: TranscriptsIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
