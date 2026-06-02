@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Search, SlidersHorizontal, MoreVertical, FileText, Upload } from "lucide-react";
+import { Search, SlidersHorizontal, Share2, FileText, Upload } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { sampleTranscripts } from "@/lib/sample-data";
+import { ShareSheet } from "@/components/ShareSheet";
 
 export const Route = createFileRoute("/transcripts")({
   head: () => ({ meta: [{ title: "Transcripts — Kingdom Notes" }] }),
