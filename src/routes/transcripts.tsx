@@ -48,10 +48,10 @@ function TranscriptsPage() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search transcripts"
-            className="w-full rounded-xl border border-border bg-card py-2.5 pl-9 pr-3 text-sm shadow-card outline-none focus:ring-2 focus:ring-primary/30"
+            className="w-full rounded-xl border border-card-hairline bg-card py-2.5 pl-9 pr-3 text-sm shadow-card outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
-        <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card shadow-card">
+        <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-card-hairline bg-card shadow-card">
           <SlidersHorizontal className="h-4 w-4" />
         </button>
       </div>
@@ -62,8 +62,10 @@ function TranscriptsPage() {
             <button
               key={f}
               onClick={() => setActive(f)}
-              className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
-                active === f ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground border border-border"
+              className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium transition-all ${
+                active === f
+                  ? "bg-primary text-primary-foreground shadow-card"
+                  : "bg-card text-foreground/70 border border-card-hairline shadow-chip hover:text-foreground active:scale-[0.97]"
               }`}
             >
               {f}
@@ -72,14 +74,14 @@ function TranscriptsPage() {
         </div>
       </div>
 
-      <button className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card py-2.5 text-sm font-medium text-primary">
+      <button className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-card-hairline bg-card py-2.5 text-sm font-medium text-primary shadow-chip">
         <Upload className="h-4 w-4" /> Import from Otter
       </button>
 
       {active === "All" && (
         <>
-          <div className="mt-4 flex items-center justify-between">
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Folders</h2>
+          <div className="mt-5 flex items-center justify-between">
+            <h2 className="section-label px-1">Folders</h2>
             <button
               onClick={() => setShowNew((v) => !v)}
               className="flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary"
@@ -96,23 +98,26 @@ function TranscriptsPage() {
                 onChange={(e) => setNewFolder(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") submitFolder(); if (e.key === "Escape") setShowNew(false); }}
                 placeholder="Folder name"
-                className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                className="flex-1 rounded-lg border border-card-hairline bg-card px-3 py-2 text-sm"
               />
               <button onClick={submitFolder} className="rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground">Add</button>
             </div>
           )}
 
-          <div className="mt-2 grid grid-cols-2 gap-2">
+          <div className="mt-2 grid grid-cols-2 gap-2.5">
             {folders.map((f) => (
-              <div key={f.id} className="flex items-center gap-2 rounded-xl bg-card p-3 shadow-card">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <FolderIcon className="h-4 w-4" />
+              <button
+                key={f.id}
+                className="flex items-center gap-2.5 rounded-2xl border border-card-hairline bg-folder-gradient p-3 text-left shadow-card transition-transform active:scale-[0.98] hover:shadow-elevated"
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary">
+                  <FolderIcon className="h-5 w-5" />
                 </div>
                 <div className="min-w-0">
-                  <div className="line-clamp-1 text-sm font-medium text-foreground">{f.name}</div>
+                  <div className="line-clamp-1 text-sm font-semibold text-foreground">{f.name}</div>
                   <div className="text-[11px] text-muted-foreground">0 recordings</div>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </>
@@ -124,15 +129,15 @@ function TranscriptsPage() {
             <Link
               to="/transcripts/$id"
               params={{ id: t.id }}
-              className="block rounded-2xl bg-card p-4 shadow-card transition-transform active:scale-[0.99]"
+              className="block rounded-2xl border border-card-hairline bg-card p-4 shadow-card transition-all active:scale-[0.99] hover:shadow-elevated"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground/70">
                     <FileText className="h-5 w-5" />
                   </div>
                   <div className="min-w-0">
-                    <div className="text-xs font-medium text-primary">{t.type}</div>
+                    <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{t.type}</div>
                     <div className="line-clamp-1 font-semibold text-foreground">{t.title}</div>
                     <div className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
                       {t.speaker}{t.congregation && ` · ${t.congregation}`}
@@ -153,16 +158,16 @@ function TranscriptsPage() {
                   }
                 />
               </div>
-              <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{t.preview}</p>
+              <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-foreground-soft">{t.preview}</p>
               <div className="mt-3 flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">{t.date} · {t.duration}</span>
-                <span className="rounded-full bg-gold/25 px-2 py-0.5 font-medium text-gold-foreground dark:text-gold">{t.scriptures.length} scriptures</span>
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 font-medium text-primary">{t.scriptures.length} scriptures</span>
               </div>
             </Link>
           </li>
         ))}
         {items.length === 0 && (
-          <li className="rounded-2xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
+          <li className="rounded-2xl border border-dashed border-card-hairline bg-card p-10 text-center text-sm text-muted-foreground">
             No transcripts match your search yet.
           </li>
         )}

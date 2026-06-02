@@ -54,8 +54,8 @@ function GeneralPage() {
 
       <ul className="mt-4 space-y-3">
         {folders.map((f) => (
-          <li key={f.id} className="flex items-center gap-3 rounded-2xl bg-card p-4 shadow-card">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <li key={f.id} className="flex items-center gap-3 rounded-2xl border border-card-hairline bg-folder-gradient p-4 shadow-card transition-all hover:shadow-elevated">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary">
               <FolderIcon className="h-5 w-5" />
             </div>
             <div className="min-w-0 flex-1">
@@ -72,7 +72,7 @@ function GeneralPage() {
           </li>
         ))}
         {folders.length === 0 && (
-          <li className="rounded-2xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
+          <li className="rounded-2xl border border-dashed border-card-hairline bg-card p-10 text-center text-sm text-muted-foreground">
             No folders yet. Tap "New folder" to start.
           </li>
         )}
