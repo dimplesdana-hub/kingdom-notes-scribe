@@ -1,29 +1,183 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
+import { Mic, Square, Pause, Play, Plus, ChevronDown, Circle } from "lucide-react";
+import { PageShell } from "@/components/PageShell";
+import { ScriptureText } from "@/components/ScriptureText";
+import { sampleTranscripts, type SessionType } from "@/lib/sample-data";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Your App" },
-      { name: "description", content: "Replace this with a one-sentence description of your app." },
-      { property: "og:title", content: "Your App" },
-      { property: "og:description", content: "Replace this with a one-sentence description of your app." },
-    ],
-  }),
-  component: Index,
+  head: () => ({ meta: [{ title: "Record — Kingdom Notes" }] }),
+  component: RecordPage,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+type Status = "idle" | "recording" | "paused";
+
+const SESSION_TYPES: SessionType[] = ["Meeting", "Assembly", "Convention", "Personal Study", "Field Service"];
+
+function RecordPage() {
+  const [status, setStatus] = useState<Status>("idle");
+  const [elapsed, setElapsed] = useState(0);
+  const [paragraphs, setParagraphs] = useState<{ speaker: string; text: string }[]>([]);
+  const [showSession, setShowSession] = useState(false);
+  const [session, setSession] = useState({
+    type: "Meeting" as SessionType,
+    date: new Date().toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" }),
+    speaker: "",
+    congregation: "",
+    title: "",
+  });
+  const timerRef = useRef<number | null>(null);
+  const demoIdx = useRef(0);
+  const demoLines = sampleTranscripts[0].body;
+
+  useEffect(() => {
+    if (status === "recording") {
+      timerRef.current = window.setInterval(() => {
+        setElapsed((s) => s + 1);
+        // simulate live transcript
+        if (Math.random() < 0.25 && demoIdx.current < demoLines.length) {
+          setParagraphs((p) => [...p, demoLines[demoIdx.current++]]);
+        }
+      }, 1000);
+    }
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [status]);
+
+  const fmt = (s: number) => {
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+  };
+
+  const stop = () => { setStatus("idle"); setElapsed(0); setParagraphs([]); demoIdx.current = 0; };
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
+    <PageShell
+      title="Kingdom Notes"
+      right={
+        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Circle className={`h-2.5 w-2.5 fill-current ${status === "recording" ? "text-emerald-500" : "text-emerald-500"}`} />
+          Live
+        </span>
+      }
     >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+      {/* Session info bar */}
+      <button
+        onClick={() => setShowSession(true)}
+        className="w-full rounded-2xl bg-card p-4 text-left shadow-card"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">{session.type}</span>
+              <span className="text-xs text-muted-foreground">{session.date}</span>
+            </div>
+            <div className="mt-2 truncate text-sm font-semibold text-foreground">
+              {session.title || "Tap to add talk title"}
+            </div>
+            <div className="mt-0.5 truncate text-xs text-muted-foreground">
+              {session.speaker || "Speaker not set"}{session.congregation ? ` · ${session.congregation}` : ""}
+            </div>
+          </div>
+          <ChevronDown className="mt-1 h-5 w-5 shrink-0 text-muted-foreground" />
+        </div>
+      </button>
+
+      {/* Live transcript */}
+      <section className="mt-4 min-h-[42vh] rounded-2xl bg-card p-4 shadow-card">
+        {paragraphs.length === 0 ? (
+          <div className="flex h-full min-h-[40vh] flex-col items-center justify-center text-center">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
+              <Mic className="h-9 w-9 text-primary" />
+            </div>
+            <p className="mt-4 max-w-[16rem] text-sm text-muted-foreground">
+              Tap record to begin. Scriptures and publications will be detected automatically.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {paragraphs.map((p, i) => (
+              <div key={i}>
+                <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-primary/80">{p.speaker}</div>
+                <ScriptureText text={p.text} className="text-[15px] leading-relaxed text-foreground" />
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Recording controls */}
+      <section className="mt-6 flex flex-col items-center gap-3">
+        {status !== "idle" && (
+          <div className="flex items-center gap-2 text-sm">
+            <span className={`h-2.5 w-2.5 rounded-full ${status === "recording" ? "bg-red-500" : "bg-gold"}`} />
+            <span className="font-semibold text-foreground">{status === "recording" ? "Recording" : "Paused"}</span>
+            <span className="tabular-nums text-muted-foreground">{fmt(elapsed)}</span>
+          </div>
+        )}
+        <div className="flex items-center gap-6">
+          {status !== "idle" && (
+            <button onClick={stop} className="flex h-14 w-14 items-center justify-center rounded-full border border-border bg-card shadow-card" aria-label="Stop">
+              <Square className="h-6 w-6 fill-foreground text-foreground" />
+            </button>
+          )}
+          <button
+            onClick={() => setStatus(s => s === "recording" ? "paused" : "recording")}
+            className={`flex h-20 w-20 items-center justify-center rounded-full text-primary-foreground shadow-elevated transition-transform active:scale-95 ${
+              status === "recording" ? "animate-record-pulse bg-red-500" : "bg-primary"
+            }`}
+            aria-label={status === "recording" ? "Pause" : "Record"}
+          >
+            {status === "recording" ? <Pause className="h-9 w-9" /> : status === "paused" ? <Play className="h-9 w-9 fill-current" /> : <Mic className="h-9 w-9" />}
+          </button>
+          <button className="flex h-14 w-14 items-center justify-center rounded-full border border-border bg-card shadow-card" aria-label="Add">
+            <Plus className="h-6 w-6 text-foreground" />
+          </button>
+        </div>
+      </section>
+
+      {showSession && <SessionEditor session={session} onSave={(s) => { setSession(s); setShowSession(false); }} onClose={() => setShowSession(false)} />}
+    </PageShell>
+  );
+}
+
+function SessionEditor({ session, onSave, onClose }: { session: any; onSave: (s: any) => void; onClose: () => void }) {
+  const [s, setS] = useState(session);
+  return (
+    <div className="fixed inset-0 z-50 flex items-end">
+      <button className="absolute inset-0 bg-foreground/40" onClick={onClose} />
+      <div className="animate-slide-up relative mx-auto w-full max-w-md rounded-t-3xl bg-card p-5 shadow-elevated safe-bottom">
+        <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-muted" />
+        <h2 className="text-lg font-semibold text-foreground">Session details</h2>
+        <div className="mt-4 space-y-3">
+          <Field label="Session type">
+            <select value={s.type} onChange={(e) => setS({ ...s, type: e.target.value })} className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm">
+              {SESSION_TYPES.map(t => <option key={t}>{t}</option>)}
+            </select>
+          </Field>
+          <Field label="Date">
+            <input value={s.date} onChange={(e) => setS({ ...s, date: e.target.value })} className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm" />
+          </Field>
+          <Field label="Speaker name">
+            <input placeholder="e.g., Bro. Marcus Williams" value={s.speaker} onChange={(e) => setS({ ...s, speaker: e.target.value })} className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm" />
+          </Field>
+          <Field label="Congregation">
+            <input placeholder="e.g., Eastside Congregation" value={s.congregation} onChange={(e) => setS({ ...s, congregation: e.target.value })} className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm" />
+          </Field>
+          <Field label="Talk title">
+            <input placeholder="Auto-filled from program" value={s.title} onChange={(e) => setS({ ...s, title: e.target.value })} className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm" />
+          </Field>
+        </div>
+        <button onClick={() => onSave(s)} className="mt-5 w-full rounded-xl bg-primary py-3 font-semibold text-primary-foreground">Save</button>
+      </div>
     </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-xs font-medium text-muted-foreground">{label}</span>
+      {children}
+    </label>
   );
 }
