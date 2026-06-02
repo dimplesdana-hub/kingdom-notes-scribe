@@ -117,6 +117,20 @@
 @layer utilities {
   .shadow-card { box-shadow: var(--shadow-card); }
   .shadow-elevated { box-shadow: var(--shadow-elevated); }
+  .shadow-chip { box-shadow: var(--shadow-chip); }
+  .safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 0.5rem); }
+  .safe-top { padding-top: max(env(safe-area-inset-top), 0.5rem); }
+  .bg-header-gradient { background-image: var(--gradient-header); }
+  .bg-folder-gradient { background-image: var(--gradient-folder); }
+  .border-card-hairline { border-color: var(--card-border); }
+  .section-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+}
   .safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 0.5rem); }
   .safe-top { padding-top: max(env(safe-area-inset-top), 0.5rem); }
 }
