@@ -1,9 +1,10 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Mic, FileText, Calendar, Radio, Settings } from "lucide-react";
+import { Mic, FileText, Folder, Calendar, Radio, Settings } from "lucide-react";
 
 const tabs = [
   { to: "/", label: "Record", icon: Mic },
   { to: "/transcripts", label: "Transcripts", icon: FileText },
+  { to: "/general", label: "General", icon: Folder },
   { to: "/program", label: "Program", icon: Calendar },
   { to: "/updates", label: "Updates", icon: Radio },
   { to: "/settings", label: "Settings", icon: Settings },

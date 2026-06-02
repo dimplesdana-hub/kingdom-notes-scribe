@@ -13,6 +13,7 @@ import { Route as UpdatesRouteImport } from './routes/updates'
 import { Route as TranscriptsRouteImport } from './routes/transcripts'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ProgramRouteImport } from './routes/program'
+import { Route as GeneralRouteImport } from './routes/general'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TranscriptsIdRouteImport } from './routes/transcripts_.$id'
 
@@ -36,6 +37,11 @@ const ProgramRoute = ProgramRouteImport.update({
   path: '/program',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GeneralRoute = GeneralRouteImport.update({
+  id: '/general',
+  path: '/general',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -49,6 +55,7 @@ const TranscriptsIdRoute = TranscriptsIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/general': typeof GeneralRoute
   '/program': typeof ProgramRoute
   '/settings': typeof SettingsRoute
   '/transcripts': typeof TranscriptsRoute
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/general': typeof GeneralRoute
   '/program': typeof ProgramRoute
   '/settings': typeof SettingsRoute
   '/transcripts': typeof TranscriptsRoute
@@ -66,6 +74,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/general': typeof GeneralRoute
   '/program': typeof ProgramRoute
   '/settings': typeof SettingsRoute
   '/transcripts': typeof TranscriptsRoute
@@ -76,6 +85,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/general'
     | '/program'
     | '/settings'
     | '/transcripts'
@@ -84,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/general'
     | '/program'
     | '/settings'
     | '/transcripts'
@@ -92,6 +103,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/general'
     | '/program'
     | '/settings'
     | '/transcripts'
@@ -101,6 +113,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  GeneralRoute: typeof GeneralRoute
   ProgramRoute: typeof ProgramRoute
   SettingsRoute: typeof SettingsRoute
   TranscriptsRoute: typeof TranscriptsRoute
@@ -138,6 +151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProgramRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/general': {
+      id: '/general'
+      path: '/general'
+      fullPath: '/general'
+      preLoaderRoute: typeof GeneralRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -157,6 +177,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  GeneralRoute: GeneralRoute,
   ProgramRoute: ProgramRoute,
   SettingsRoute: SettingsRoute,
   TranscriptsRoute: TranscriptsRoute,
