@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ScriptureSheet } from "./ScriptureSheet";
 
-/** Renders text and converts [Book Chapter:Verse] tokens to teal chips.
+/** Renders text and converts [Book Chapter:Verse] tokens to orange chips.
  *  Also highlights publication names in gold. */
 export function ScriptureText({ text, className = "" }: { text: string; className?: string }) {
   const [open, setOpen] = useState<string | null>(null);

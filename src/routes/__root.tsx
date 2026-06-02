@@ -79,7 +79,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { name: "theme-color", content: "#006D77" },
+      { name: "theme-color", content: "#F97316" },
       { title: "Kingdom Notes — Smart Notes for Meetings & Assemblies" },
       { name: "description", content: "Smart speech-to-text recording for Jehovah's Witnesses — capture meetings, assemblies, and personal study with scripture detection." },
       { property: "og:title", content: "Kingdom Notes" },
