@@ -4,7 +4,7 @@ import { Plus, Folder as FolderIcon, Mic, Trash2 } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { useFolders } from "@/lib/folders";
 
-export const Route = createFileRoute("/general")({
+export const Route = createFileRoute("/_authenticated/general")({
   head: () => ({ meta: [{ title: "General — Kingdom Notes" }] }),
   component: GeneralPage,
 });

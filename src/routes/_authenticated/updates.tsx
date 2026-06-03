@@ -3,7 +3,7 @@ import { ExternalLink, Play, BookOpen, Newspaper, Users } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { updates } from "@/lib/sample-data";
 
-export const Route = createFileRoute("/updates")({
+export const Route = createFileRoute("/_authenticated/updates")({
   head: () => ({ meta: [{ title: "Updates — Kingdom Notes" }] }),
   component: UpdatesPage,
 });

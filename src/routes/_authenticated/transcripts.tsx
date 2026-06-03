@@ -6,7 +6,7 @@ import { sampleTranscripts } from "@/lib/sample-data";
 import { ShareSheet } from "@/components/ShareSheet";
 import { useFolders } from "@/lib/folders";
 
-export const Route = createFileRoute("/transcripts")({
+export const Route = createFileRoute("/_authenticated/transcripts")({
   head: () => ({ meta: [{ title: "Transcripts — Kingdom Notes" }] }),
   component: TranscriptsPage,
 });

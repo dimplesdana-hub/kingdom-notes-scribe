@@ -4,7 +4,7 @@ import { Moon, Sun, Upload, Download, Cloud, Info, ChevronRight, BookOpen } from
 import { PageShell } from "@/components/PageShell";
 import { useTheme } from "@/lib/theme";
 
-export const Route = createFileRoute("/settings")({
+export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Settings — Kingdom Notes" }] }),
   component: SettingsPage,
 });

@@ -9,86 +9,94 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as UpdatesRouteImport } from './routes/updates'
-import { Route as TranscriptsRouteImport } from './routes/transcripts'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as ProgramRouteImport } from './routes/program'
-import { Route as GeneralRouteImport } from './routes/general'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as TranscriptsIdRouteImport } from './routes/transcripts_.$id'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedUpdatesRouteImport } from './routes/_authenticated/updates'
+import { Route as AuthenticatedTranscriptsRouteImport } from './routes/_authenticated/transcripts'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedProgramRouteImport } from './routes/_authenticated/program'
+import { Route as AuthenticatedGeneralRouteImport } from './routes/_authenticated/general'
+import { Route as AuthenticatedTranscriptsIdRouteImport } from './routes/_authenticated/transcripts_.$id'
 
-const UpdatesRoute = UpdatesRouteImport.update({
-  id: '/updates',
-  path: '/updates',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TranscriptsRoute = TranscriptsRouteImport.update({
-  id: '/transcripts',
-  path: '/transcripts',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProgramRoute = ProgramRouteImport.update({
-  id: '/program',
-  path: '/program',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GeneralRoute = GeneralRouteImport.update({
-  id: '/general',
-  path: '/general',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const TranscriptsIdRoute = TranscriptsIdRouteImport.update({
-  id: '/transcripts_/$id',
-  path: '/transcripts/$id',
-  getParentRoute: () => rootRouteImport,
+const AuthenticatedUpdatesRoute = AuthenticatedUpdatesRouteImport.update({
+  id: '/updates',
+  path: '/updates',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTranscriptsRoute =
+  AuthenticatedTranscriptsRouteImport.update({
+    id: '/transcripts',
+    path: '/transcripts',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProgramRoute = AuthenticatedProgramRouteImport.update({
+  id: '/program',
+  path: '/program',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedGeneralRoute = AuthenticatedGeneralRouteImport.update({
+  id: '/general',
+  path: '/general',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTranscriptsIdRoute =
+  AuthenticatedTranscriptsIdRouteImport.update({
+    id: '/transcripts_/$id',
+    path: '/transcripts/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
-  '/general': typeof GeneralRoute
-  '/program': typeof ProgramRoute
-  '/settings': typeof SettingsRoute
-  '/transcripts': typeof TranscriptsRoute
-  '/updates': typeof UpdatesRoute
-  '/transcripts/$id': typeof TranscriptsIdRoute
+  '/general': typeof AuthenticatedGeneralRoute
+  '/program': typeof AuthenticatedProgramRoute
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/transcripts': typeof AuthenticatedTranscriptsRoute
+  '/updates': typeof AuthenticatedUpdatesRoute
+  '/transcripts/$id': typeof AuthenticatedTranscriptsIdRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/general': typeof GeneralRoute
-  '/program': typeof ProgramRoute
-  '/settings': typeof SettingsRoute
-  '/transcripts': typeof TranscriptsRoute
-  '/updates': typeof UpdatesRoute
-  '/transcripts/$id': typeof TranscriptsIdRoute
+  '/general': typeof AuthenticatedGeneralRoute
+  '/program': typeof AuthenticatedProgramRoute
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/transcripts': typeof AuthenticatedTranscriptsRoute
+  '/updates': typeof AuthenticatedUpdatesRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/transcripts/$id': typeof AuthenticatedTranscriptsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/general': typeof GeneralRoute
-  '/program': typeof ProgramRoute
-  '/settings': typeof SettingsRoute
-  '/transcripts': typeof TranscriptsRoute
-  '/updates': typeof UpdatesRoute
-  '/transcripts_/$id': typeof TranscriptsIdRoute
+  '/_authenticated/general': typeof AuthenticatedGeneralRoute
+  '/_authenticated/program': typeof AuthenticatedProgramRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/transcripts': typeof AuthenticatedTranscriptsRoute
+  '/_authenticated/updates': typeof AuthenticatedUpdatesRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/transcripts_/$id': typeof AuthenticatedTranscriptsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -103,74 +111,34 @@ export interface FileRouteTypes {
     | '/transcripts/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/auth'
     | '/general'
     | '/program'
     | '/settings'
     | '/transcripts'
     | '/updates'
+    | '/'
     | '/transcripts/$id'
   id:
     | '__root__'
-    | '/'
+    | '/_authenticated'
     | '/auth'
-    | '/general'
-    | '/program'
-    | '/settings'
-    | '/transcripts'
-    | '/updates'
-    | '/transcripts_/$id'
+    | '/_authenticated/general'
+    | '/_authenticated/program'
+    | '/_authenticated/settings'
+    | '/_authenticated/transcripts'
+    | '/_authenticated/updates'
+    | '/_authenticated/'
+    | '/_authenticated/transcripts_/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
-  GeneralRoute: typeof GeneralRoute
-  ProgramRoute: typeof ProgramRoute
-  SettingsRoute: typeof SettingsRoute
-  TranscriptsRoute: typeof TranscriptsRoute
-  UpdatesRoute: typeof UpdatesRoute
-  TranscriptsIdRoute: typeof TranscriptsIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/updates': {
-      id: '/updates'
-      path: '/updates'
-      fullPath: '/updates'
-      preLoaderRoute: typeof UpdatesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/transcripts': {
-      id: '/transcripts'
-      path: '/transcripts'
-      fullPath: '/transcripts'
-      preLoaderRoute: typeof TranscriptsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/program': {
-      id: '/program'
-      path: '/program'
-      fullPath: '/program'
-      preLoaderRoute: typeof ProgramRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/general': {
-      id: '/general'
-      path: '/general'
-      fullPath: '/general'
-      preLoaderRoute: typeof GeneralRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -178,43 +146,92 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/transcripts_/$id': {
-      id: '/transcripts_/$id'
+    '/_authenticated/': {
+      id: '/_authenticated/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/updates': {
+      id: '/_authenticated/updates'
+      path: '/updates'
+      fullPath: '/updates'
+      preLoaderRoute: typeof AuthenticatedUpdatesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/transcripts': {
+      id: '/_authenticated/transcripts'
+      path: '/transcripts'
+      fullPath: '/transcripts'
+      preLoaderRoute: typeof AuthenticatedTranscriptsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/program': {
+      id: '/_authenticated/program'
+      path: '/program'
+      fullPath: '/program'
+      preLoaderRoute: typeof AuthenticatedProgramRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/general': {
+      id: '/_authenticated/general'
+      path: '/general'
+      fullPath: '/general'
+      preLoaderRoute: typeof AuthenticatedGeneralRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/transcripts_/$id': {
+      id: '/_authenticated/transcripts_/$id'
       path: '/transcripts/$id'
       fullPath: '/transcripts/$id'
-      preLoaderRoute: typeof TranscriptsIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedTranscriptsIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedGeneralRoute: typeof AuthenticatedGeneralRoute
+  AuthenticatedProgramRoute: typeof AuthenticatedProgramRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedTranscriptsRoute: typeof AuthenticatedTranscriptsRoute
+  AuthenticatedUpdatesRoute: typeof AuthenticatedUpdatesRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedTranscriptsIdRoute: typeof AuthenticatedTranscriptsIdRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedGeneralRoute: AuthenticatedGeneralRoute,
+  AuthenticatedProgramRoute: AuthenticatedProgramRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedTranscriptsRoute: AuthenticatedTranscriptsRoute,
+  AuthenticatedUpdatesRoute: AuthenticatedUpdatesRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedTranscriptsIdRoute: AuthenticatedTranscriptsIdRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
-  GeneralRoute: GeneralRoute,
-  ProgramRoute: ProgramRoute,
-  SettingsRoute: SettingsRoute,
-  TranscriptsRoute: TranscriptsRoute,
-  UpdatesRoute: UpdatesRoute,
-  TranscriptsIdRoute: TranscriptsIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

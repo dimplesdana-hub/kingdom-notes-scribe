@@ -4,7 +4,7 @@ import { RefreshCw, Mic, Plus, Bell } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { weekendProgram, midweekProgram, conventionProgram } from "@/lib/sample-data";
 
-export const Route = createFileRoute("/program")({
+export const Route = createFileRoute("/_authenticated/program")({
   head: () => ({ meta: [{ title: "Program — Kingdom Notes" }] }),
   component: ProgramPage,
 });

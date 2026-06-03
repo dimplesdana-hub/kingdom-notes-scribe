@@ -12,6 +12,8 @@ const tabs = [
 
 export function BottomTabBar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  if (pathname === "/auth") return null;
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-card-hairline bg-card/70 backdrop-blur-xl supports-[backdrop-filter]:bg-card/60 safe-bottom">
       <ul className="mx-auto flex max-w-md items-stretch justify-between px-2 pt-1.5">
