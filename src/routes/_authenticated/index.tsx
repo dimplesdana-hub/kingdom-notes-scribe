@@ -107,7 +107,7 @@ function RecordPage() {
     }
   };
 
-  const paragraphs = live.finals.map((text) => ({ speaker: session.speaker || "Speaker", text }));
+  const paragraphs = groupIntoParagraphs(live.finals, session.speaker || "Speaker");
 
   return (
     <PageShell
