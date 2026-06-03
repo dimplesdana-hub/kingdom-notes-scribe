@@ -225,6 +225,26 @@ function fmtDuration(totalSec: number): string {
   return `${m} min`;
 }
 
+// Group AssemblyAI final turn segments into paragraphs of 2-5 sentences.
+// Single speaker: show the speaker label only on the first paragraph.
+function groupIntoParagraphs(
+  finals: string[],
+  speaker: string,
+): { speaker: string; text: string; showSpeaker: boolean }[] {
+  if (finals.length === 0) return [];
+  // Split combined finals into sentences.
+  const combined = finals.join(" ").replace(/\s+/g, " ").trim();
+  if (!combined) return [];
+  const sentences = combined.match(/[^.!?]+[.!?]+|\S[^.!?]*$/g)?.map((s) => s.trim()).filter(Boolean) ?? [combined];
+
+  const PER_BLOCK = 4; // target 2-5 sentences per paragraph
+  const blocks: string[] = [];
+  for (let i = 0; i < sentences.length; i += PER_BLOCK) {
+    blocks.push(sentences.slice(i, i + PER_BLOCK).join(" "));
+  }
+  return blocks.map((text, i) => ({ speaker, text, showSpeaker: i === 0 }));
+}
+
 function SessionEditor({ session, onSave, onClose }: { session: any; onSave: (s: any) => void; onClose: () => void }) {
   const [s, setS] = useState(session);
   return (
