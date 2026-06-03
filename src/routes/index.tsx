@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { Mic, Square, Pause, Play, Plus, ChevronDown, Circle } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { ScriptureText } from "@/components/ScriptureText";
-import { sampleTranscripts, type SessionType } from "@/lib/sample-data";
+import { type SessionType } from "@/lib/sample-data";
+import { useLiveTranscription } from "@/lib/useLiveTranscription";
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [{ title: "Record — Kingdom Notes" }] }),
@@ -17,7 +18,6 @@ const SESSION_TYPES: SessionType[] = ["Meeting", "Assembly", "Convention", "Pers
 function RecordPage() {
   const [status, setStatus] = useState<Status>("idle");
   const [elapsed, setElapsed] = useState(0);
-  const [paragraphs, setParagraphs] = useState<{ speaker: string; text: string }[]>([]);
   const [showSession, setShowSession] = useState(false);
   const [session, setSession] = useState({
     type: "Meeting" as SessionType,
@@ -27,18 +27,11 @@ function RecordPage() {
     title: "",
   });
   const timerRef = useRef<number | null>(null);
-  const demoIdx = useRef(0);
-  const demoLines = sampleTranscripts[0].body;
+  const live = useLiveTranscription();
 
   useEffect(() => {
     if (status === "recording") {
-      timerRef.current = window.setInterval(() => {
-        setElapsed((s) => s + 1);
-        // simulate live transcript
-        if (Math.random() < 0.25 && demoIdx.current < demoLines.length) {
-          setParagraphs((p) => [...p, demoLines[demoIdx.current++]]);
-        }
-      }, 1000);
+      timerRef.current = window.setInterval(() => setElapsed((s) => s + 1), 1000);
     }
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [status]);
@@ -48,7 +41,24 @@ function RecordPage() {
     return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
   };
 
-  const stop = () => { setStatus("idle"); setElapsed(0); setParagraphs([]); demoIdx.current = 0; };
+  const toggle = async () => {
+    if (status === "recording") {
+      setStatus("paused");
+      live.stop();
+    } else {
+      setStatus("recording");
+      await live.start();
+    }
+  };
+
+  const stop = () => {
+    setStatus("idle");
+    setElapsed(0);
+    live.stop();
+    live.reset();
+  };
+
+  const paragraphs = live.finals.map((text) => ({ speaker: session.speaker || "Speaker", text }));
 
   return (
     <PageShell
