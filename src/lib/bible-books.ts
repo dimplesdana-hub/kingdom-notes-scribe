@@ -86,8 +86,16 @@ const ALIAS_MAP: Map<string, BookMeta> = (() => {
   return m;
 })();
 
+// Normalize spoken variants into canonical alias form.
+// Handles: "Revelations" -> "revelation", "First/1st John" -> "1 john",
+// "Second Corinthians" -> "2 corinthians", "Third John" -> "3 john".
 function normalize(name: string): string {
-  return name.toLowerCase().replace(/\./g, "").replace(/\s+/g, " ").trim();
+  let n = name.toLowerCase().replace(/\./g, "").replace(/\s+/g, " ").trim();
+  n = n.replace(/^(first|1st)\s+/, "1 ");
+  n = n.replace(/^(second|2nd)\s+/, "2 ");
+  n = n.replace(/^(third|3rd)\s+/, "3 ");
+  n = n.replace(/\brevelations\b/, "revelation");
+  return n;
 }
 
 export function findBook(name: string): BookMeta | null {
@@ -103,15 +111,18 @@ export interface ParsedRef {
 }
 
 export function parseReference(raw: string): ParsedRef | null {
-  // Match: "1 John 3:16", "Romans 8:38-39", "Psalm 23:1", "Genesis 1:1-3"
-  const m = raw.match(/^\s*((?:[1-3]\s*)?[A-Za-z]+(?:\s+(?:of\s+)?[A-Za-z]+)?)\s+(\d+):(\d+)(?:[-–](\d+))?\s*$/);
+  // Match written ("John 3:16", "Romans 8:38-39") AND spoken
+  // ("John 3 16", "Romans 8 38 39", "Revelation 21 3") formats.
+  const m = raw.match(
+    /^\s*((?:(?:[1-3]|first|second|third|1st|2nd|3rd)\s+)?[A-Za-z]+(?:\s+(?:of\s+)?[A-Za-z]+)?)\s+(\d+)(?::\s*(\d+)(?:\s*[-–]\s*(\d+))?|\s+(\d+)(?:\s*[-–\s]\s*(\d+))?)\s*$/i,
+  );
   if (!m) return null;
   const book = findBook(m[1]);
   if (!book) return null;
   const chapter = parseInt(m[2], 10);
-  const verse = parseInt(m[3], 10);
-  const endVerse = m[4] ? parseInt(m[4], 10) : undefined;
-  // Use canonical book display (Title Case from slug, but easier from first alias which is full lowercase name)
+  const verse = parseInt(m[3] ?? m[5], 10);
+  const endRaw = m[4] ?? m[6];
+  const endVerse = endRaw ? parseInt(endRaw, 10) : undefined;
   const fullName = book.aliases[0]
     .split(" ")
     .map((w) => (w.match(/^\d/) ? w : w.charAt(0).toUpperCase() + w.slice(1)))
@@ -129,9 +140,16 @@ export function buildJwUrl(p: ParsedRef): string {
   return `https://www.jw.org/en/library/bible/nwt/books/${p.book.slug}/${p.chapter}/#v${p.book.number}${pad3(p.chapter)}${pad3(p.verse)}`;
 }
 
-// Scan text for all scripture references; return matches with index ranges.
-const REF_REGEX =
-  /\b((?:[1-3]\s)?(?:Genesis|Gen|Exodus|Exod?|Leviticus|Lev|Numbers|Num|Deuteronomy|Deut|Joshua|Josh|Judges|Judg|Ruth|Samuel|Sam|Kings|Kgs|Chronicles|Chron|Chr|Ezra|Nehemiah|Neh|Esther|Est|Job|Psalms?|Ps|Proverbs|Prov|Pr|Ecclesiastes|Eccl|Ecc|Song(?:\sof\s(?:Solomon|Songs))?|Isaiah|Isa|Jeremiah|Jer|Lamentations|Lam|Ezekiel|Ezek|Daniel|Dan|Hosea|Hos|Joel|Amos|Obadiah|Obad|Jonah|Jon|Micah|Mic|Nahum|Nah|Habakkuk|Hab|Zephaniah|Zeph|Haggai|Hag|Zechariah|Zech|Malachi|Mal|Matthew|Matt|Mt|Mark|Mk|Luke|Lk|John|Jn|Acts|Romans|Rom|Corinthians|Cor|Galatians|Gal|Ephesians|Eph|Philippians|Phil|Php|Colossians|Col|Thessalonians|Thess|Timothy|Tim|Titus|Tit|Philemon|Phlm|Hebrews|Heb|James|Jas|Peter|Pet|Jude|Revelation|Rev)\.?\s+\d+:\d+(?:[-–]\d+)?)\b/g;
+// Book-name alternation, including spoken ordinal prefixes and "Revelations".
+const BOOK_ALT =
+  "(?:(?:[1-3]|First|Second|Third|1st|2nd|3rd)\\s+)?" +
+  "(?:Genesis|Gen|Exodus|Exod?|Leviticus|Lev|Numbers|Num|Deuteronomy|Deut|Joshua|Josh|Judges|Judg|Ruth|Samuel|Sam|Kings|Kgs|Chronicles|Chron|Chr|Ezra|Nehemiah|Neh|Esther|Est|Job|Psalms?|Ps|Proverbs|Prov|Pr|Ecclesiastes|Eccl|Ecc|Song(?:\\sof\\s(?:Solomon|Songs))?|Isaiah|Isa|Jeremiah|Jer|Lamentations|Lam|Ezekiel|Ezek|Daniel|Dan|Hosea|Hos|Joel|Amos|Obadiah|Obad|Jonah|Jon|Micah|Mic|Nahum|Nah|Habakkuk|Hab|Zephaniah|Zeph|Haggai|Hag|Zechariah|Zech|Malachi|Mal|Matthew|Matt|Mt|Mark|Mk|Luke|Lk|John|Jn|Acts|Romans|Rom|Corinthians|Cor|Galatians|Gal|Ephesians|Eph|Philippians|Phil|Php|Colossians|Col|Thessalonians|Thess|Timothy|Tim|Titus|Tit|Philemon|Phlm|Hebrews|Heb|James|Jas|Peter|Pet|Jude|Revelations?|Rev)";
+
+// Match written "Book C:V[-E]" OR spoken "Book C V [E]" (spaces between numbers).
+const REF_REGEX = new RegExp(
+  `\\b(${BOOK_ALT}\\.?\\s+\\d+(?::\\s*\\d+(?:\\s*[-–]\\s*\\d+)?|\\s+\\d+(?:\\s*[-–\\s]\\s*\\d+)?))\\b`,
+  "gi",
+);
 
 export interface RefMatch {
   start: number;
