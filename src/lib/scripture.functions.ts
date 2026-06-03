@@ -6,25 +6,33 @@ const InputSchema = z.object({
   reference: z.string().min(3).max(120),
 });
 
-/** Fetch NWT verse text from JW.org for a given reference (e.g. "John 3:16" or "Romans 8:38-39"). */
+/** Fetch NWT verse text from WOL (Watchtower Online Library) for a given reference. */
 export const fetchScripture = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => InputSchema.parse(data))
   .handler(async ({ data }) => {
     const parsed = parseReference(data.reference);
     if (!parsed) return { text: null, error: "Unrecognized reference" as string | null };
 
-    const url = `https://www.jw.org/en/library/bible/nwt/books/${parsed.book.slug}/${parsed.chapter}/`;
+    const url = `https://wol.jw.org/en/wol/b/r1/lp-e/nwtsty/${parsed.book.number}/${parsed.chapter}`;
 
     try {
-      const res = await fetch(url, {
-        headers: {
-          "user-agent":
-            "Mozilla/5.0 (compatible; KingdomNotes/1.0; +https://kingdomnotes.app)",
-          "accept": "text/html",
-        },
-      });
-      if (!res.ok) return { text: null, error: `JW.org returned ${res.status}` };
-      const html = await res.text();
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 3000);
+      let html: string;
+      try {
+        const res = await fetch(url, {
+          headers: {
+            "user-agent":
+              "Mozilla/5.0 (compatible; KingdomNotes/1.0; +https://kingdomnotes.app)",
+            "accept": "text/html",
+          },
+          signal: controller.signal,
+        });
+        if (!res.ok) return { text: null, error: `WOL returned ${res.status}` };
+        html = await res.text();
+      } finally {
+        clearTimeout(timeout);
+      }
 
       const start = parsed.verse;
       const end = parsed.endVerse ?? parsed.verse;
@@ -36,26 +44,25 @@ export const fetchScripture = createServerFn({ method: "POST" })
       if (!collected.length) return { text: null, error: "Verse text not found" };
       return { text: collected.join(" "), error: null };
     } catch (e: any) {
-      return { text: null, error: e?.message ?? "Failed to fetch verse" };
+      const msg = e?.name === "AbortError" ? "Timed out" : e?.message ?? "Failed to fetch verse";
+      return { text: null, error: msg };
     }
   });
 
-/** Extract a single verse's plain text from a JW.org NWT chapter page. */
+/** Extract a single verse's plain text from a WOL NWT chapter page.
+ *  WOL marks verses with id="v<book>-<chapter>-<verse>-..." and class names
+ *  containing the verse number; we anchor on the id prefix and clean tags. */
 function extractVerse(html: string, bookNum: number, chapter: number, verse: number): string | null {
-  // JW.org marks each verse with id="v<bookNum><chapter padded to 3><verse padded to 3>"
-  const id = `v${bookNum}${String(chapter).padStart(3, "0")}${String(verse).padStart(3, "0")}`;
-  // The verse text lives inside a span with that id; capture content up to closing </span>.
-  // Use a permissive regex that finds the id then grabs text until the next <span id="v...".
-  const idIdx = html.indexOf(`id="${id}"`);
+  // WOL uses ids like id="v1-1-1-1" (book-chapter-verse-...) on verse spans.
+  const idPrefix = `v${bookNum}-${chapter}-${verse}-`;
+  const idIdx = html.indexOf(`id="${idPrefix}`);
   if (idIdx === -1) return null;
-  // Find the start of the enclosing element after the id attribute
   const afterAttr = html.indexOf(">", idIdx);
   if (afterAttr === -1) return null;
-  // Slice from there until the next verse marker or end of paragraph
   const tail = html.slice(afterAttr + 1);
-  const nextVerse = tail.search(/id="v\d{9,10}"/);
+  // Stop at the next verse marker
+  const nextVerse = tail.search(/id="v\d+-\d+-\d+-/);
   const segment = nextVerse === -1 ? tail.slice(0, 4000) : tail.slice(0, nextVerse);
-  // Strip tags, footnotes, verse numbers
   let text = segment
     .replace(/<sup[\s\S]*?<\/sup>/g, "")
     .replace(/<a[^>]*class="[^"]*fn[^"]*"[\s\S]*?<\/a>/g, "")
@@ -67,7 +74,6 @@ function extractVerse(html: string, bookNum: number, chapter: number, verse: num
     .replace(/&[a-z]+;/gi, " ")
     .replace(/\s+/g, " ")
     .trim();
-  // Often starts with the verse number followed by text — strip leading "16 " etc.
   text = text.replace(new RegExp(`^${verse}\\s+`), "");
   return text || null;
 }
