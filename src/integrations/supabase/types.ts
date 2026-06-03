@@ -93,6 +93,7 @@ export type Database = {
       }
       transcripts: {
         Row: {
+          action_items: Json
           audio_url: string | null
           congregation: string | null
           created_at: string
@@ -104,12 +105,16 @@ export type Database = {
           preview: string | null
           scriptures: Json
           speaker: string | null
+          summary: Json
+          summary_error: string | null
+          summary_status: string
           title: string
           type: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          action_items?: Json
           audio_url?: string | null
           congregation?: string | null
           created_at?: string
@@ -121,12 +126,16 @@ export type Database = {
           preview?: string | null
           scriptures?: Json
           speaker?: string | null
+          summary?: Json
+          summary_error?: string | null
+          summary_status?: string
           title: string
           type?: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          action_items?: Json
           audio_url?: string | null
           congregation?: string | null
           created_at?: string
@@ -138,6 +147,9 @@ export type Database = {
           preview?: string | null
           scriptures?: Json
           speaker?: string | null
+          summary?: Json
+          summary_error?: string | null
+          summary_status?: string
           title?: string
           type?: string
           updated_at?: string
