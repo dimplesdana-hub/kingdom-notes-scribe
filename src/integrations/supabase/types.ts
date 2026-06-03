@@ -14,7 +14,137 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      notes: {
+        Row: {
+          color: string
+          content: string
+          created_at: string
+          id: string
+          timestamp_seconds: number | null
+          transcript_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string
+          content?: string
+          created_at?: string
+          id?: string
+          timestamp_seconds?: number | null
+          transcript_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string
+          content?: string
+          created_at?: string
+          id?: string
+          timestamp_seconds?: number | null
+          transcript_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notes_transcript_id_fkey"
+            columns: ["transcript_id"]
+            isOneToOne: false
+            referencedRelation: "transcripts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      speakers: {
+        Row: {
+          congregation: string | null
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          role: string | null
+          updated_at: string
+          user_id: string
+          voice_fingerprint: Json | null
+        }
+        Insert: {
+          congregation?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          role?: string | null
+          updated_at?: string
+          user_id: string
+          voice_fingerprint?: Json | null
+        }
+        Update: {
+          congregation?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          role?: string | null
+          updated_at?: string
+          user_id?: string
+          voice_fingerprint?: Json | null
+        }
+        Relationships: []
+      }
+      transcripts: {
+        Row: {
+          audio_url: string | null
+          congregation: string | null
+          created_at: string
+          date: string | null
+          duration: string | null
+          folder: string | null
+          full_text: string | null
+          id: string
+          preview: string | null
+          scriptures: Json
+          speaker: string | null
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          audio_url?: string | null
+          congregation?: string | null
+          created_at?: string
+          date?: string | null
+          duration?: string | null
+          folder?: string | null
+          full_text?: string | null
+          id?: string
+          preview?: string | null
+          scriptures?: Json
+          speaker?: string | null
+          title: string
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          audio_url?: string | null
+          congregation?: string | null
+          created_at?: string
+          date?: string | null
+          duration?: string | null
+          folder?: string | null
+          full_text?: string | null
+          id?: string
+          preview?: string | null
+          scriptures?: Json
+          speaker?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
