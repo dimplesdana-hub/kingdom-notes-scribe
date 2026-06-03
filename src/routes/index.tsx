@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { Mic, Square, Pause, Play, Plus, ChevronDown, Circle } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { ScriptureText } from "@/components/ScriptureText";
-import { sampleTranscripts, type SessionType } from "@/lib/sample-data";
+import { type SessionType } from "@/lib/sample-data";
+import { useLiveTranscription } from "@/lib/useLiveTranscription";
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [{ title: "Record — Kingdom Notes" }] }),
@@ -17,7 +18,6 @@ const SESSION_TYPES: SessionType[] = ["Meeting", "Assembly", "Convention", "Pers
 function RecordPage() {
   const [status, setStatus] = useState<Status>("idle");
   const [elapsed, setElapsed] = useState(0);
-  const [paragraphs, setParagraphs] = useState<{ speaker: string; text: string }[]>([]);
   const [showSession, setShowSession] = useState(false);
   const [session, setSession] = useState({
     type: "Meeting" as SessionType,
@@ -27,18 +27,11 @@ function RecordPage() {
     title: "",
   });
   const timerRef = useRef<number | null>(null);
-  const demoIdx = useRef(0);
-  const demoLines = sampleTranscripts[0].body;
+  const live = useLiveTranscription();
 
   useEffect(() => {
     if (status === "recording") {
-      timerRef.current = window.setInterval(() => {
-        setElapsed((s) => s + 1);
-        // simulate live transcript
-        if (Math.random() < 0.25 && demoIdx.current < demoLines.length) {
-          setParagraphs((p) => [...p, demoLines[demoIdx.current++]]);
-        }
-      }, 1000);
+      timerRef.current = window.setInterval(() => setElapsed((s) => s + 1), 1000);
     }
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [status]);
@@ -48,7 +41,24 @@ function RecordPage() {
     return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
   };
 
-  const stop = () => { setStatus("idle"); setElapsed(0); setParagraphs([]); demoIdx.current = 0; };
+  const toggle = async () => {
+    if (status === "recording") {
+      setStatus("paused");
+      live.stop();
+    } else {
+      setStatus("recording");
+      await live.start();
+    }
+  };
+
+  const stop = () => {
+    setStatus("idle");
+    setElapsed(0);
+    live.stop();
+    live.reset();
+  };
+
+  const paragraphs = live.finals.map((text) => ({ speaker: session.speaker || "Speaker", text }));
 
   return (
     <PageShell
@@ -84,7 +94,7 @@ function RecordPage() {
 
       {/* Live transcript */}
       <section className="mt-4 min-h-[42vh] rounded-2xl bg-card p-4 shadow-card">
-        {paragraphs.length === 0 ? (
+        {paragraphs.length === 0 && !live.partial ? (
           <div className="flex h-full min-h-[40vh] flex-col items-center justify-center text-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
               <Mic className="h-9 w-9 text-primary" />
@@ -92,6 +102,7 @@ function RecordPage() {
             <p className="mt-4 max-w-[16rem] text-sm text-muted-foreground">
               Tap record to begin. Scriptures and publications will be detected automatically.
             </p>
+            {live.error && <p className="mt-3 text-xs text-red-500">{live.error}</p>}
           </div>
         ) : (
           <div className="space-y-4">
@@ -101,6 +112,9 @@ function RecordPage() {
                 <ScriptureText text={p.text} className="text-[15px] leading-relaxed text-foreground" />
               </div>
             ))}
+            {live.partial && (
+              <p className="text-[15px] leading-relaxed italic text-muted-foreground">{live.partial}</p>
+            )}
           </div>
         )}
       </section>
@@ -110,7 +124,9 @@ function RecordPage() {
         {status !== "idle" && (
           <div className="flex items-center gap-2 text-sm">
             <span className={`h-2.5 w-2.5 rounded-full ${status === "recording" ? "bg-red-500" : "bg-gold"}`} />
-            <span className="font-semibold text-foreground">{status === "recording" ? "Recording" : "Paused"}</span>
+            <span className="font-semibold text-foreground">
+              {status === "recording" ? (live.status === "connecting" ? "Connecting…" : "Recording") : "Paused"}
+            </span>
             <span className="tabular-nums text-muted-foreground">{fmt(elapsed)}</span>
           </div>
         )}
@@ -121,7 +137,7 @@ function RecordPage() {
             </button>
           )}
           <button
-            onClick={() => setStatus(s => s === "recording" ? "paused" : "recording")}
+            onClick={toggle}
             className={`flex h-20 w-20 items-center justify-center rounded-full text-primary-foreground shadow-elevated transition-transform active:scale-95 ${
               status === "recording" ? "animate-record-pulse bg-red-500" : "bg-primary"
             }`}
@@ -134,6 +150,7 @@ function RecordPage() {
           </button>
         </div>
       </section>
+
 
       {showSession && <SessionEditor session={session} onSave={(s) => { setSession(s); setShowSession(false); }} onClose={() => setShowSession(false)} />}
     </PageShell>
