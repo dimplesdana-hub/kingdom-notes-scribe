@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { ChevronDown, ChevronUp, ExternalLink, Loader2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
-import { lookupScripture } from "@/lib/scriptures";
+import { lookupScripture, SCRIPTURE_TEXT } from "@/lib/scriptures";
+const SCRIPTURE_TEXT_HAS = (r: string) => Object.prototype.hasOwnProperty.call(SCRIPTURE_TEXT, r);
 import { fetchScripture } from "@/lib/scripture.functions";
 import { buildJwUrl, parseReference } from "@/lib/bible-books";
 
