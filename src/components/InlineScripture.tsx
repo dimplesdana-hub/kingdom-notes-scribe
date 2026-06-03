@@ -31,15 +31,17 @@ export function InlineScripture({ reference }: { reference: string }) {
           verseCache.set(reference, res.text);
           setText(res.text);
         } else {
-          // Fall back to the local NWT snippet map if we have it.
-          const fallback = lookupScripture(reference);
-          setText(fallback);
+          // Use only known local snippets; otherwise leave null so the
+          // JW.org fallback link renders.
+          const local = SCRIPTURE_TEXT_HAS(reference) ? lookupScripture(reference) : null;
+          if (local) setText(local);
           if (res.error) setError(res.error);
         }
       })
       .catch((e) => {
         if (cancelled) return;
-        setText(lookupScripture(reference));
+        const local = SCRIPTURE_TEXT_HAS(reference) ? lookupScripture(reference) : null;
+        if (local) setText(local);
         setError(e?.message ?? "Failed to load verse");
       })
       .finally(() => {
