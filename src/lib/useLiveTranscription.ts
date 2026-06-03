@@ -30,7 +30,7 @@ export function useLiveTranscription() {
       procRef.current?.disconnect();
       srcRef.current?.disconnect();
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-        wsRef.current.send(JSON.stringify({ terminate_session: true }));
+        wsRef.current.send(JSON.stringify({ type: "Terminate" }));
       }
       wsRef.current?.close();
       ctxRef.current?.close();
