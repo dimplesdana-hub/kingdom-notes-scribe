@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedUpdatesRouteImport } from './routes/_authenticated/updates'
 import { Route as AuthenticatedTranscriptsRouteImport } from './routes/_authenticated/transcripts'
+import { Route as AuthenticatedTranscribeTestRouteImport } from './routes/_authenticated/transcribe-test'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedProgramRouteImport } from './routes/_authenticated/program'
 import { Route as AuthenticatedGeneralRouteImport } from './routes/_authenticated/general'
@@ -44,6 +45,12 @@ const AuthenticatedTranscriptsRoute =
     path: '/transcripts',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedTranscribeTestRoute =
+  AuthenticatedTranscribeTestRouteImport.update({
+    id: '/transcribe-test',
+    path: '/transcribe-test',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -72,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/general': typeof AuthenticatedGeneralRoute
   '/program': typeof AuthenticatedProgramRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/transcribe-test': typeof AuthenticatedTranscribeTestRoute
   '/transcripts': typeof AuthenticatedTranscriptsRoute
   '/updates': typeof AuthenticatedUpdatesRoute
   '/transcripts/$id': typeof AuthenticatedTranscriptsIdRoute
@@ -81,6 +89,7 @@ export interface FileRoutesByTo {
   '/general': typeof AuthenticatedGeneralRoute
   '/program': typeof AuthenticatedProgramRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/transcribe-test': typeof AuthenticatedTranscribeTestRoute
   '/transcripts': typeof AuthenticatedTranscriptsRoute
   '/updates': typeof AuthenticatedUpdatesRoute
   '/': typeof AuthenticatedIndexRoute
@@ -93,6 +102,7 @@ export interface FileRoutesById {
   '/_authenticated/general': typeof AuthenticatedGeneralRoute
   '/_authenticated/program': typeof AuthenticatedProgramRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/transcribe-test': typeof AuthenticatedTranscribeTestRoute
   '/_authenticated/transcripts': typeof AuthenticatedTranscriptsRoute
   '/_authenticated/updates': typeof AuthenticatedUpdatesRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/general'
     | '/program'
     | '/settings'
+    | '/transcribe-test'
     | '/transcripts'
     | '/updates'
     | '/transcripts/$id'
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '/general'
     | '/program'
     | '/settings'
+    | '/transcribe-test'
     | '/transcripts'
     | '/updates'
     | '/'
@@ -126,6 +138,7 @@ export interface FileRouteTypes {
     | '/_authenticated/general'
     | '/_authenticated/program'
     | '/_authenticated/settings'
+    | '/_authenticated/transcribe-test'
     | '/_authenticated/transcripts'
     | '/_authenticated/updates'
     | '/_authenticated/'
@@ -174,6 +187,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTranscriptsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/transcribe-test': {
+      id: '/_authenticated/transcribe-test'
+      path: '/transcribe-test'
+      fullPath: '/transcribe-test'
+      preLoaderRoute: typeof AuthenticatedTranscribeTestRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/settings': {
       id: '/_authenticated/settings'
       path: '/settings'
@@ -209,6 +229,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedGeneralRoute: typeof AuthenticatedGeneralRoute
   AuthenticatedProgramRoute: typeof AuthenticatedProgramRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedTranscribeTestRoute: typeof AuthenticatedTranscribeTestRoute
   AuthenticatedTranscriptsRoute: typeof AuthenticatedTranscriptsRoute
   AuthenticatedUpdatesRoute: typeof AuthenticatedUpdatesRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
@@ -219,6 +240,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedGeneralRoute: AuthenticatedGeneralRoute,
   AuthenticatedProgramRoute: AuthenticatedProgramRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedTranscribeTestRoute: AuthenticatedTranscribeTestRoute,
   AuthenticatedTranscriptsRoute: AuthenticatedTranscriptsRoute,
   AuthenticatedUpdatesRoute: AuthenticatedUpdatesRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
@@ -235,3 +257,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
