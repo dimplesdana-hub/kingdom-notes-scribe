@@ -4,9 +4,10 @@ import { getAssemblyAiToken } from "./assemblyai.functions";
 
 type Status = "idle" | "connecting" | "live" | "error";
 
-interface PartialMsg {
-  message_type: "PartialTranscript" | "FinalTranscript" | "SessionBegins" | "SessionTerminated";
-  text?: string;
+interface V3Msg {
+  type: "Begin" | "Turn" | "Termination";
+  transcript?: string;
+  end_of_turn?: boolean;
   error?: string;
 }
 
