@@ -9,8 +9,8 @@ export const getAssemblyAiToken = createServerFn({ method: "POST" })
     if (!apiKey) throw new Error("ASSEMBLYAI_API_KEY not configured");
 
     const res = await fetch(
-      "https://api.assemblyai.com/v2/realtime/token?expires_in=3600",
-      { method: "POST", headers: { authorization: apiKey } }
+      "https://streaming.assemblyai.com/v3/token?expires_in_seconds=3600",
+      { method: "GET", headers: { authorization: apiKey } }
     );
     if (!res.ok) {
       const txt = await res.text();
