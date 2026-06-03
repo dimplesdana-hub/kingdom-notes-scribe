@@ -1,10 +1,16 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Mic, Square, Pause, Play, Plus, ChevronDown, Circle } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { Mic, Square, Pause, Play, Plus, ChevronDown, Circle, Loader2 } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { ScriptureText } from "@/components/ScriptureText";
 import { type SessionType } from "@/lib/sample-data";
 import { useLiveTranscription } from "@/lib/useLiveTranscription";
+import { findReferences } from "@/lib/bible-books";
+import {
+  createTranscriptFromRecording,
+  summarizeTranscript,
+} from "@/lib/summarize.functions";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({ meta: [{ title: "Record — Kingdom Notes" }] }),
@@ -19,6 +25,8 @@ function RecordPage() {
   const [status, setStatus] = useState<Status>("idle");
   const [elapsed, setElapsed] = useState(0);
   const [showSession, setShowSession] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [session, setSession] = useState({
     type: "Meeting" as SessionType,
     date: new Date().toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" }),
@@ -28,6 +36,9 @@ function RecordPage() {
   });
   const timerRef = useRef<number | null>(null);
   const live = useLiveTranscription();
+  const navigate = useNavigate();
+  const createTranscript = useServerFn(createTranscriptFromRecording);
+  const summarize = useServerFn(summarizeTranscript);
 
   useEffect(() => {
     if (status === "recording") {
@@ -46,16 +57,54 @@ function RecordPage() {
       setStatus("paused");
       live.stop();
     } else {
+      setSaveError(null);
       setStatus("recording");
       await live.start();
     }
   };
 
-  const stop = () => {
+  const stop = async () => {
+    live.stop();
+    const previousElapsed = elapsed;
+    const fullText = live.finals.join("\n\n").trim();
     setStatus("idle");
     setElapsed(0);
-    live.stop();
-    live.reset();
+
+    if (!fullText) {
+      live.reset();
+      return;
+    }
+
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const dur = fmtDuration(previousElapsed);
+      const scriptures = Array.from(
+        new Set(findReferences(fullText).map((r) => r.parsed.display)),
+      );
+      const { id } = await createTranscript({
+        data: {
+          title: session.title || `${session.type} — ${session.date}`,
+          type: session.type,
+          speaker: session.speaker || null,
+          congregation: session.congregation || null,
+          date: session.date,
+          duration: dur,
+          fullText,
+          scriptures,
+        },
+      });
+      // Fire-and-forget AI summary. The detail page polls for completion.
+      summarize({ data: { transcriptId: id, text: fullText } }).catch((e) =>
+        console.error("Summarize failed:", e),
+      );
+      live.reset();
+      navigate({ to: "/transcripts/$id", params: { id } });
+    } catch (e: any) {
+      setSaveError(e?.message ?? "Could not save transcript");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const paragraphs = live.finals.map((text) => ({ speaker: session.speaker || "Speaker", text }));
@@ -119,6 +168,16 @@ function RecordPage() {
         )}
       </section>
 
+      {saving && (
+        <div className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-primary/10 px-3 py-2 text-sm text-primary">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Saving transcript…
+        </div>
+      )}
+      {saveError && (
+        <div className="mt-3 rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">{saveError}</div>
+      )}
+
       {/* Recording controls */}
       <section className="mt-6 flex flex-col items-center gap-3">
         {status !== "idle" && (
@@ -132,13 +191,14 @@ function RecordPage() {
         )}
         <div className="flex items-center gap-6">
           {status !== "idle" && (
-            <button onClick={stop} className="flex h-14 w-14 items-center justify-center rounded-full border border-border bg-card shadow-card" aria-label="Stop">
+            <button onClick={stop} disabled={saving} className="flex h-14 w-14 items-center justify-center rounded-full border border-border bg-card shadow-card disabled:opacity-50" aria-label="Stop">
               <Square className="h-6 w-6 fill-foreground text-foreground" />
             </button>
           )}
           <button
             onClick={toggle}
-            className={`flex h-20 w-20 items-center justify-center rounded-full text-primary-foreground shadow-elevated transition-transform active:scale-95 ${
+            disabled={saving}
+            className={`flex h-20 w-20 items-center justify-center rounded-full text-primary-foreground shadow-elevated transition-transform active:scale-95 disabled:opacity-50 ${
               status === "recording" ? "animate-record-pulse bg-red-500" : "bg-primary"
             }`}
             aria-label={status === "recording" ? "Pause" : "Record"}
@@ -155,6 +215,12 @@ function RecordPage() {
       {showSession && <SessionEditor session={session} onSave={(s) => { setSession(s); setShowSession(false); }} onClose={() => setShowSession(false)} />}
     </PageShell>
   );
+}
+
+function fmtDuration(totalSec: number): string {
+  if (totalSec < 60) return `${totalSec} sec`;
+  const m = Math.round(totalSec / 60);
+  return `${m} min`;
 }
 
 function SessionEditor({ session, onSave, onClose }: { session: any; onSave: (s: any) => void; onClose: () => void }) {
