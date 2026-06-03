@@ -71,7 +71,7 @@ export function useLiveTranscription() {
       procRef.current = processor;
 
       const ws = new WebSocket(
-        `wss://streaming.assemblyai.com/v3/ws?sample_rate=16000&format_turns=true&token=${token}`
+        `wss://streaming.assemblyai.com/v3/ws?sample_rate=16000&format_turns=true&speech_model=universal_streaming&token=${token}`
       );
       ws.binaryType = "arraybuffer";
       wsRef.current = ws;
