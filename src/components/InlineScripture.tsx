@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { ChevronDown, ChevronUp, Loader2 } from "lucide-react";
+import { ChevronDown, ChevronUp, ExternalLink, Loader2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { lookupScripture } from "@/lib/scriptures";
 import { fetchScripture } from "@/lib/scripture.functions";
+import { buildJwUrl, parseReference } from "@/lib/bible-books";
 
 // Module-level cache so reopening a chip is instant.
 const verseCache = new Map<string, string>();
