@@ -71,8 +71,9 @@ export function useLiveTranscription() {
       procRef.current = processor;
 
       const ws = new WebSocket(
-        `wss://api.assemblyai.com/v2/realtime/ws?sample_rate=16000&token=${token}`
+        `wss://streaming.assemblyai.com/v3/ws?sample_rate=16000&format_turns=true&token=${token}`
       );
+      ws.binaryType = "arraybuffer";
       wsRef.current = ws;
 
       ws.onopen = () => {
@@ -82,12 +83,14 @@ export function useLiveTranscription() {
       };
 
       ws.onmessage = (ev) => {
-        const msg = JSON.parse(ev.data) as PartialMsg;
-        if (msg.message_type === "PartialTranscript" && msg.text !== undefined) {
-          setPartial(msg.text);
-        } else if (msg.message_type === "FinalTranscript" && msg.text) {
-          setFinals((prev) => [...prev, msg.text!]);
-          setPartial("");
+        const msg = JSON.parse(ev.data) as V3Msg;
+        if (msg.type === "Turn" && typeof msg.transcript === "string") {
+          if (msg.end_of_turn) {
+            if (msg.transcript) setFinals((prev) => [...prev, msg.transcript!]);
+            setPartial("");
+          } else {
+            setPartial(msg.transcript);
+          }
         } else if (msg.error) {
           setError(msg.error);
         }
@@ -101,18 +104,12 @@ export function useLiveTranscription() {
       processor.onaudioprocess = (e) => {
         if (ws.readyState !== WebSocket.OPEN) return;
         const input = e.inputBuffer.getChannelData(0);
-        // Float32 -> Int16 PCM
         const pcm = new Int16Array(input.length);
         for (let i = 0; i < input.length; i++) {
           const s = Math.max(-1, Math.min(1, input[i]));
           pcm[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
         }
-        // base64 encode
-        const bytes = new Uint8Array(pcm.buffer);
-        let bin = "";
-        for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-        const b64 = btoa(bin);
-        ws.send(JSON.stringify({ audio_data: b64 }));
+        ws.send(pcm.buffer);
       };
     } catch (e: any) {
       setError(e?.message ?? "Failed to start");
