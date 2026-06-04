@@ -145,6 +145,14 @@ const REF_REGEX = new RegExp(
   "gi",
 );
 
+// Matches spoken-style "Book chapter X verse(s) Y [to|through|and Z]".
+// Allows punctuation/line breaks between words: "Exodus chapter. 14. verses. 21 to 31".
+const SEP = `[\\s.,;:\\-–]{1,8}`;
+const CHAPTER_VERSE_REGEX = new RegExp(
+  `\\b(${BOOK_ALT})\\.?${SEP}chapters?${SEP}(\\d+)${SEP}verses?${SEP}(\\d+)(?:${SEP}(?:to|thru|through|and|[-–])${SEP}(\\d+))?`,
+  "gi",
+);
+
 export interface RefMatch {
   start: number;
   end: number;
@@ -152,13 +160,42 @@ export interface RefMatch {
   parsed: ParsedRef;
 }
 
+function makeParsed(bookName: string, chapter: number, verse: number, endVerse?: number): ParsedRef | null {
+  const book = findBook(bookName);
+  if (!book) return null;
+  if (chapter < 1 || chapter > book.chapters) return null;
+  const end = endVerse && endVerse > verse ? endVerse : undefined;
+  const fullName = book.aliases[0]
+    .split(" ")
+    .map((w) => (/^\d/.test(w) ? w : w.charAt(0).toUpperCase() + w.slice(1)))
+    .join(" ");
+  const display = `${fullName} ${chapter}:${verse}${end ? `-${end}` : ""}`;
+  return { book, display, chapter, verse, endVerse: end };
+}
+
 export function findReferences(text: string): RefMatch[] {
-  const out: RefMatch[] = [];
-  REF_REGEX.lastIndex = 0;
+  const matches: RefMatch[] = [];
+
+  // 1. Spoken "chapter X verse Y" form first (longest, would otherwise be missed).
+  CHAPTER_VERSE_REGEX.lastIndex = 0;
   let m: RegExpExecArray | null;
-  while ((m = REF_REGEX.exec(text)) !== null) {
-    const parsed = parseReference(m[1]);
-    if (parsed) out.push({ start: m.index, end: m.index + m[1].length, raw: m[1], parsed });
+  while ((m = CHAPTER_VERSE_REGEX.exec(text)) !== null) {
+    const parsed = makeParsed(m[1], parseInt(m[2], 10), parseInt(m[3], 10), m[4] ? parseInt(m[4], 10) : undefined);
+    if (parsed) {
+      matches.push({ start: m.index, end: m.index + m[0].length, raw: m[0], parsed });
+    }
   }
-  return out;
+
+  // 2. Standard / short spoken form. Skip overlaps with chapter-verse matches.
+  REF_REGEX.lastIndex = 0;
+  while ((m = REF_REGEX.exec(text)) !== null) {
+    const start = m.index;
+    const end = m.index + m[1].length;
+    if (matches.some((x) => start < x.end && end > x.start)) continue;
+    const parsed = parseReference(m[1]);
+    if (parsed) matches.push({ start, end, raw: m[1], parsed });
+  }
+
+  matches.sort((a, b) => a.start - b.start);
+  return matches;
 }
