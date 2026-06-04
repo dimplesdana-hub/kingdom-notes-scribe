@@ -56,7 +56,7 @@ function TranscriptsPage() {
             className="w-full rounded-xl border border-card-hairline bg-card py-2.5 pl-9 pr-3 text-sm shadow-card outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
-        <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-card-hairline bg-card shadow-card">
+        <button aria-label="Filter transcripts" className="flex h-10 w-10 items-center justify-center rounded-xl border border-card-hairline bg-card shadow-card">
           <SlidersHorizontal className="h-4 w-4" />
         </button>
       </div>
