@@ -107,7 +107,11 @@ function RecordPage() {
     }
   };
 
-  const paragraphs = live.finals.map((text) => ({ speaker: session.speaker || "Speaker", text }));
+  const speakerLabel = session.speaker || "Speaker";
+  const paragraphs = groupFinalsBySentences(live.finals, 5).map((text) => ({
+    speaker: speakerLabel,
+    text,
+  }));
 
   return (
     <PageShell
