@@ -4,7 +4,12 @@ import { PageShell } from "@/components/PageShell";
 import { updates } from "@/lib/sample-data";
 
 export const Route = createFileRoute("/_authenticated/updates")({
-  head: () => ({ meta: [{ title: "Updates — Kingdom Notes" }] }),
+  head: () => ({
+    meta: [
+      { title: "Updates — Kingdom Notes" },
+      { name: "description", content: "Stay current with JW.org broadcasts, latest publications, and congregation announcements." },
+    ],
+  }),
   component: UpdatesPage,
 });
 

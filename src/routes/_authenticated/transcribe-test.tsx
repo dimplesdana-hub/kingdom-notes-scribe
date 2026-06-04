@@ -5,6 +5,12 @@ import { Button } from "@/components/ui/button";
 import { useLiveTranscription } from "@/lib/useLiveTranscription";
 
 export const Route = createFileRoute("/_authenticated/transcribe-test")({
+  head: () => ({
+    meta: [
+      { title: "Transcribe Test — Kingdom Notes" },
+      { name: "description", content: "Test the live speech-to-text engine and microphone setup before your next recording session." },
+    ],
+  }),
   component: TranscribeTestPage,
 });
 

@@ -5,7 +5,12 @@ import { PageShell } from "@/components/PageShell";
 import { useTheme } from "@/lib/theme";
 
 export const Route = createFileRoute("/_authenticated/settings")({
-  head: () => ({ meta: [{ title: "Settings — Kingdom Notes" }] }),
+  head: () => ({
+    meta: [
+      { title: "Settings — Kingdom Notes" },
+      { name: "description", content: "Manage your profile, transcription preferences, connected services, and app appearance settings." },
+    ],
+  }),
   component: SettingsPage,
 });
 
