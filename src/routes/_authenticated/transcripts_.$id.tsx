@@ -303,11 +303,16 @@ function AiList({
   );
 }
 
-function ScripturesTab({ refs }: { refs: string[] }) {
-  if (!refs.length) return <Empty msg="No scriptures detected in this recording." />;
+function ScripturesTab({ refs, fullText }: { refs: string[]; fullText: string }) {
+  const list = useMemo(() => {
+    if (refs.length) return refs;
+    if (!fullText) return [];
+    return Array.from(new Set(findReferences(fullText).map((r) => r.parsed.display)));
+  }, [refs, fullText]);
+  if (!list.length) return <Empty msg="No scriptures detected in this recording." />;
   return (
     <ul className="space-y-2">
-      {refs.map((r) => (
+      {list.map((r) => (
         <li key={r} className="rounded-2xl bg-card p-4 shadow-card">
           <InlineScripture reference={r} />
         </li>
