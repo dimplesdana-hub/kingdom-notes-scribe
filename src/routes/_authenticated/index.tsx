@@ -227,6 +227,26 @@ function fmtDuration(totalSec: number): string {
   return `${m} min`;
 }
 
+/** Accumulate live final turns into blocks of at least `minSentences` sentences
+ *  so we don't render a new card for every short utterance. */
+function groupFinalsBySentences(finals: string[], minSentences = 5): string[] {
+  const blocks: string[] = [];
+  let current = "";
+  let count = 0;
+  for (const f of finals) {
+    if (current && count >= minSentences) {
+      blocks.push(current);
+      current = "";
+      count = 0;
+    }
+    current = current ? `${current} ${f}` : f;
+    const m = f.match(/[.!?]+(\s|$)/g);
+    count += m ? m.length : 0;
+  }
+  if (current) blocks.push(current);
+  return blocks;
+}
+
 function SessionEditor({ session, onSave, onClose }: { session: any; onSave: (s: any) => void; onClose: () => void }) {
   const [s, setS] = useState(session);
   return (
