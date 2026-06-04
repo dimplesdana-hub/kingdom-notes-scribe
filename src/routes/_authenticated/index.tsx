@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { Mic, Square, Pause, Play, Plus, ChevronDown, Circle, Loader2 } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { ScriptureText } from "@/components/ScriptureText";
@@ -11,6 +12,8 @@ import {
   createTranscriptFromRecording,
   summarizeTranscript,
 } from "@/lib/summarize.functions";
+import { detectSpeaker, formatSpeaker, honorific, type SpeakerRole } from "@/lib/speaker-detect";
+import { upsertSpeaker, findSpeakerByName } from "@/lib/speakers.functions";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({ meta: [{ title: "Record — Kingdom Notes" }] }),
