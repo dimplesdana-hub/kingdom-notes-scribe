@@ -136,11 +136,22 @@ function RecordPage() {
           scriptures,
         },
       });
+      // Persist speaker memory if we have a name
+      if (session.speaker) {
+        saveSpeaker({
+          data: {
+            name: session.speaker,
+            congregation: session.congregation || null,
+            role: session.role,
+          },
+        }).catch((e) => console.error("upsertSpeaker failed:", e));
+      }
       // Fire-and-forget AI summary. The detail page polls for completion.
       summarize({ data: { transcriptId: id, text: fullText } }).catch((e) =>
         console.error("Summarize failed:", e),
       );
       live.reset();
+      setSpeakerAutoFilled(false);
       navigate({ to: "/transcripts/$id", params: { id } });
     } catch (e: any) {
       setSaveError(e?.message ?? "Could not save transcript");
