@@ -233,7 +233,7 @@ function TranscriptDetailPage() {
             busyLabel="Extracting action items…"
           />
         )}
-        {tab === "scriptures" && <ScripturesTab refs={t.scriptures} />}
+        {tab === "scriptures" && <ScripturesTab refs={t.scriptures} fullText={t.fullText} />}
       </main>
     </div>
   );
