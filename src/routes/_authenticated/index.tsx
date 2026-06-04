@@ -36,12 +36,51 @@ function RecordPage() {
     speaker: "",
     congregation: "",
     title: "",
+    role: "unknown" as SpeakerRole,
   });
+  const [speakerAutoFilled, setSpeakerAutoFilled] = useState(false);
   const timerRef = useRef<number | null>(null);
   const live = useLiveTranscription();
   const navigate = useNavigate();
   const createTranscript = useServerFn(createTranscriptFromRecording);
   const summarize = useServerFn(summarizeTranscript);
+  const saveSpeaker = useServerFn(upsertSpeaker);
+  const lookupSpeaker = useServerFn(findSpeakerByName);
+
+  // Speaker detection: scan finals as they arrive; only auto-fill once per recording
+  // and only when the user hasn't manually entered a speaker name.
+  useEffect(() => {
+    if (speakerAutoFilled) return;
+    if (session.speaker) return;
+    if (live.finals.length === 0) return;
+    const text = live.finals.join(" ");
+    const det = detectSpeaker(text);
+    if (!det) return;
+    setSpeakerAutoFilled(true);
+    setSession((s) => ({
+      ...s,
+      speaker: det.name,
+      congregation: det.congregation ?? s.congregation,
+      role: det.role,
+    }));
+    toast(`Speaker detected: ${formatSpeaker(det.role, det.name)}${det.congregation ? ` from ${det.congregation}` : ""}`, {
+      description: "Tap the speaker name to edit.",
+    });
+    // Save to speakers table (and remember for future recordings)
+    saveSpeaker({
+      data: { name: det.name, congregation: det.congregation, role: det.role },
+    }).catch((e) => console.error("upsertSpeaker failed:", e));
+    // If no congregation detected, see if we have remembered one
+    if (!det.congregation) {
+      lookupSpeaker({ data: { name: det.name } })
+        .then(({ speaker }) => {
+          if (speaker?.congregation) {
+            setSession((s) => (s.congregation ? s : { ...s, congregation: speaker.congregation! }));
+          }
+        })
+        .catch(() => {});
+    }
+  }, [live.finals, speakerAutoFilled, session.speaker, saveSpeaker, lookupSpeaker]);
 
   useEffect(() => {
     if (status === "recording") {
