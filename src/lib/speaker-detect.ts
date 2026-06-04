@@ -14,22 +14,33 @@ const NAME = "([A-Z][a-zA-Z'’\\-]+(?:\\s+[A-Z][a-zA-Z'’\\-]+){0,2})";
 // Congregation: 1-4 capitalized words (optionally followed by "congregation"/"Congregation").
 const CONG = "([A-Z][a-zA-Z'’\\-]+(?:\\s+[A-Z][a-zA-Z'’\\-]+){0,3})";
 
+// Common intro verb phrases used by JW chairmen.
+const INTRO_VERB =
+  "(?:our\\s+(?:next\\s+)?speaker(?:\\s+(?:today|tonight|this\\s+morning|this\\s+evening))?\\s+is" +
+  "|we[‘’]?ll\\s+(?:now\\s+)?hear\\s+from" +
+  "|i[‘’]?d\\s+like\\s+to\\s+introduce" +
+  "|please\\s+welcome" +
+  "|we\\s+(?:welcome|warmly\\s+welcome|are\\s+pleased\\s+to\\s+have|are\\s+happy\\s+to\\s+have|are\\s+glad\\s+to\\s+have)" +
+  "|tonight[‘’]?s\\s+speaker\\s+is" +
+  "|this\\s+(?:morning|evening)[‘’]?s\\s+speaker\\s+is" +
+  "|speaking\\s+(?:today|tonight|this\\s+(?:morning|evening))\\s+(?:will\\s+be|is)" +
+  ")";
+
 // Order matters — most specific first.
 const PATTERNS: { re: RegExp; role: SpeakerRole }[] = [
-  // "Our speaker today is Brother John Smith from Eastside [Congregation]"
-  { re: new RegExp(`\\b(?:our\\s+(?:next\\s+)?speaker(?:\\s+today)?\\s+is|we['’]?ll\\s+(?:now\\s+)?hear\\s+from|i['’]?d\\s+like\\s+to\\s+introduce)\\s+(?:brother|bro\\.?)\\s+${NAME}(?:\\s+(?:from|of)\\s+${CONG}(?:\\s+congregation)?)?`, "i"), role: "brother" },
-  { re: new RegExp(`\\b(?:our\\s+(?:next\\s+)?speaker(?:\\s+today)?\\s+is|we['’]?ll\\s+(?:now\\s+)?hear\\s+from|i['’]?d\\s+like\\s+to\\s+introduce)\\s+(?:sister|sis\\.?)\\s+${NAME}(?:\\s+(?:from|of)\\s+${CONG}(?:\\s+congregation)?)?`, "i"), role: "sister" },
+  // Intro phrase + Brother/Sister NAME [from CONG]
+  { re: new RegExp(`\\b${INTRO_VERB}\\s+(?:brother|bro\\.?)\\s+${NAME}(?:\\s+(?:from|of)\\s+${CONG}(?:\\s+congregation)?)?`, "i"), role: "brother" },
+  { re: new RegExp(`\\b${INTRO_VERB}\\s+(?:sister|sis\\.?)\\s+${NAME}(?:\\s+(?:from|of)\\s+${CONG}(?:\\s+congregation)?)?`, "i"), role: "sister" },
+  { re: new RegExp(`\\b${INTRO_VERB}\\s+${NAME}(?:\\s+(?:from|of)\\s+${CONG}(?:\\s+congregation)?)?`, "i"), role: "unknown" },
   // "Brother John from Eastside will now give us a talk"
-  { re: new RegExp(`\\b(?:brother|bro\\.?)\\s+${NAME}\\s+(?:from|of)\\s+${CONG}(?:\\s+congregation)?\\s+(?:will|is\\s+going\\s+to)\\s+(?:now\\s+)?(?:give|deliver|share)`, "i"), role: "brother" },
-  { re: new RegExp(`\\b(?:sister|sis\\.?)\\s+${NAME}\\s+(?:from|of)\\s+${CONG}(?:\\s+congregation)?\\s+(?:will|is\\s+going\\s+to)\\s+(?:now\\s+)?(?:give|deliver|share)`, "i"), role: "sister" },
+  { re: new RegExp(`\\b(?:brother|bro\\.?)\\s+${NAME}\\s+(?:from|of)\\s+${CONG}(?:\\s+congregation)?\\s+(?:will|is\\s+going\\s+to)\\s+(?:now\\s+)?(?:give|deliver|share|be\\s+giving|be\\s+delivering)`, "i"), role: "brother" },
+  { re: new RegExp(`\\b(?:sister|sis\\.?)\\s+${NAME}\\s+(?:from|of)\\s+${CONG}(?:\\s+congregation)?\\s+(?:will|is\\s+going\\s+to)\\s+(?:now\\s+)?(?:give|deliver|share|be\\s+giving|be\\s+delivering)`, "i"), role: "sister" },
   // Bare "Brother John from Eastside [congregation]"
   { re: new RegExp(`\\b(?:brother|bro\\.?)\\s+${NAME}\\s+(?:from|of)\\s+${CONG}(?:\\s+congregation)?`, "i"), role: "brother" },
   { re: new RegExp(`\\b(?:sister|sis\\.?)\\s+${NAME}\\s+(?:from|of)\\s+${CONG}(?:\\s+congregation)?`, "i"), role: "sister" },
-  // "Our next speaker is John Smith"
-  { re: new RegExp(`\\bour\\s+(?:next\\s+)?speaker(?:\\s+today)?\\s+is\\s+${NAME}(?:\\s+(?:from|of)\\s+${CONG}(?:\\s+congregation)?)?`, "i"), role: "unknown" },
-  // "I'd like to introduce Brother John" (no congregation)
-  { re: new RegExp(`\\bi['’]?d\\s+like\\s+to\\s+introduce\\s+(?:brother|bro\\.?)\\s+${NAME}`, "i"), role: "brother" },
-  { re: new RegExp(`\\bi['’]?d\\s+like\\s+to\\s+introduce\\s+(?:sister|sis\\.?)\\s+${NAME}`, "i"), role: "sister" },
+  // "I’d like to introduce Brother John" (no congregation)
+  { re: new RegExp(`\\bi[‘’]?d\\s+like\\s+to\\s+introduce\\s+(?:brother|bro\\.?)\\s+${NAME}`, "i"), role: "brother" },
+  { re: new RegExp(`\\bi[‘’]?d\\s+like\\s+to\\s+introduce\\s+(?:sister|sis\\.?)\\s+${NAME}`, "i"), role: "sister" },
 ];
 
 const NOISE = new Set([

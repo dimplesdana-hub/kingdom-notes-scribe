@@ -22,8 +22,18 @@ export function useLiveTranscription() {
   const streamRef = useRef<MediaStream | null>(null);
   const procRef = useRef<ScriptProcessorNode | null>(null);
   const srcRef = useRef<MediaStreamAudioSourceNode | null>(null);
+  // Accumulates short turns until we have a real paragraph worth of text
+  const paragraphBufRef = useRef<string>("");
 
   const fetchToken = useServerFn(getAssemblyAiToken);
+
+  const flushBuffer = useCallback((setter: typeof setFinals) => {
+    const buf = paragraphBufRef.current.trim();
+    if (buf) {
+      setter((prev) => [...prev, buf]);
+      paragraphBufRef.current = "";
+    }
+  }, []);
 
   const stop = useCallback(() => {
     try {
@@ -36,6 +46,8 @@ export function useLiveTranscription() {
       ctxRef.current?.close();
       streamRef.current?.getTracks().forEach((t) => t.stop());
     } catch {}
+    // Flush any remaining buffered text before clearing
+    paragraphBufRef.current = "";
     wsRef.current = null;
     ctxRef.current = null;
     procRef.current = null;
@@ -49,12 +61,14 @@ export function useLiveTranscription() {
     setFinals([]);
     setPartial("");
     setError(null);
+    paragraphBufRef.current = "";
   }, []);
 
   const start = useCallback(async () => {
     try {
       setError(null);
       setStatus("connecting");
+      paragraphBufRef.current = "";
 
       const { token } = await fetchToken({ data: undefined as any });
 
@@ -70,8 +84,10 @@ export function useLiveTranscription() {
       const processor = ctx.createScriptProcessor(4096, 1, 1);
       procRef.current = processor;
 
+      // end_utterance_silence_threshold=1500 waits 1.5s of silence before ending
+      // a turn — dramatically reduces word-by-word fragmentation.
       const ws = new WebSocket(
-        `wss://streaming.assemblyai.com/v3/ws?sample_rate=16000&format_turns=true&speech_model=universal-streaming-english&token=${token}`
+        `wss://streaming.assemblyai.com/v3/ws?sample_rate=16000&format_turns=true&speech_model=universal-streaming-english&end_utterance_silence_threshold=1500&token=${token}`
       );
       ws.binaryType = "arraybuffer";
       wsRef.current = ws;
@@ -84,20 +100,53 @@ export function useLiveTranscription() {
 
       ws.onmessage = (ev) => {
         const msg = JSON.parse(ev.data) as V3Msg;
+
+        if (msg.type === "Termination") {
+          // Flush remaining buffer on session end
+          const buf = paragraphBufRef.current.trim();
+          if (buf) {
+            setFinals((prev) => [...prev, buf]);
+            paragraphBufRef.current = "";
+          }
+          return;
+        }
+
         if (msg.type === "Turn" && typeof msg.transcript === "string") {
           if (msg.end_of_turn) {
-            if (msg.transcript) setFinals((prev) => [...prev, msg.transcript!]);
+            const t = msg.transcript.trim();
+            if (!t) return;
+
+            // Append to paragraph buffer
+            paragraphBufRef.current = paragraphBufRef.current
+              ? `${paragraphBufRef.current} ${t}`
+              : t;
+
+            // Flush to finals when we have a substantial paragraph:
+            // at least 120 chars OR ends with strong punctuation AND >= 60 chars
+            const buf = paragraphBufRef.current;
+            const strongEnd = /[.!?]["']?\s*$/.test(buf);
+            if (buf.length >= 120 || (strongEnd && buf.length >= 60)) {
+              setFinals((prev) => [...prev, buf]);
+              paragraphBufRef.current = "";
+            }
+
             setPartial("");
           } else {
             setPartial(msg.transcript);
           }
-        } else if (msg.error) {
-          setError(msg.error);
+        } else if ((msg as any).error) {
+          setError((msg as any).error);
         }
       };
 
       ws.onerror = () => setError("Connection error");
       ws.onclose = () => {
+        // Flush buffer on unexpected close
+        const buf = paragraphBufRef.current.trim();
+        if (buf) {
+          setFinals((prev) => [...prev, buf]);
+          paragraphBufRef.current = "";
+        }
         if (status !== "idle") setStatus("idle");
       };
 
@@ -116,7 +165,7 @@ export function useLiveTranscription() {
       setStatus("error");
       stop();
     }
-  }, [fetchToken, status, stop]);
+  }, [fetchToken, status, stop, flushBuffer]);
 
   return { status, error, partial, finals, start, stop, reset };
 }

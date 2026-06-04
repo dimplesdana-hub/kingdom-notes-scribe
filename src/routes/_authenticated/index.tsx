@@ -113,7 +113,7 @@ function RecordPage() {
   const stop = async () => {
     live.stop();
     const previousElapsed = elapsed;
-    const fullText = live.finals.join("\n\n").trim();
+    const fullText = buildCleanTranscript(live.finals);
     setStatus("idle");
     setElapsed(0);
 
@@ -279,6 +279,45 @@ function RecordPage() {
       {showSession && <SessionEditor session={session} onSave={(s) => { setSession(s); setShowSession(false); }} onClose={() => setShowSession(false)} />}
     </PageShell>
   );
+}
+
+/**
+ * Joins AssemblyAI finals into clean readable paragraphs.
+ * Fixes mid-word splits ("wane. S." → "wanes.") and groups
+ * short turns into proper paragraph blocks before saving.
+ */
+function buildCleanTranscript(finals: string[]): string {
+  if (!finals.length) return "";
+
+  // Step 1: join all finals into one stream, separated by single spaces
+  const raw = finals.join(" ");
+
+  // Step 2: fix mid-word splits caused by short turns with punctuation
+  // Pattern: word.SPACE then 1-2 lowercase letters then space/end = split word
+  const fixed = raw
+    .replace(/(\w)\.\s+([a-z]{1,2})(\s)/g, "$1$2$3")   // "wane. s " → "wanes "
+    .replace(/(\w)\.\s+([a-z]{1,2})$/g, "$1$2")          // "wane. s" at end
+    // Normalize multiple spaces
+    .replace(/\s{2,}/g, " ")
+    .trim();
+
+  // Step 3: re-split into paragraph blocks at sentence boundaries
+  // Split on ". " or "! " or "? " followed by a capital letter
+  const sentences = fixed.split(/(?<=[.!?])\s+(?=[A-Z])/);
+
+  // Group sentences into paragraphs of ~4-5 sentences
+  const paragraphs: string[] = [];
+  let block: string[] = [];
+  for (const s of sentences) {
+    block.push(s);
+    if (block.length >= 5) {
+      paragraphs.push(block.join(" "));
+      block = [];
+    }
+  }
+  if (block.length) paragraphs.push(block.join(" "));
+
+  return paragraphs.join("\n\n");
 }
 
 function fmtDuration(totalSec: number): string {

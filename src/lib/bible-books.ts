@@ -145,6 +145,50 @@ const REF_REGEX = new RegExp(
   "gi",
 );
 
+// Word-number map for spoken verse references like "verse four" → 4
+const WORD_NUMS: Record<string, number> = {
+  one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8,
+  nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14,
+  fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19,
+  twenty: 20, "twenty-one": 21, "twenty-two": 22, "twenty-three": 23,
+  "twenty-four": 24, "twenty-five": 25, "twenty-six": 26, "twenty-seven": 27,
+  "twenty-eight": 28, "twenty-nine": 29, thirty: 30, "thirty-one": 31,
+  "thirty-two": 32, "thirty-three": 33, "thirty-four": 34, "thirty-five": 35,
+  "thirty-six": 36, "thirty-seven": 37, "thirty-eight": 38, "thirty-nine": 39,
+  forty: 40, "forty-one": 41, "forty-two": 42, "forty-three": 43,
+  "forty-four": 44, "forty-five": 45, "forty-six": 46, "forty-seven": 47,
+  "forty-eight": 48, "forty-nine": 49, fifty: 50,
+};
+
+/** Convert a string that is either digits or a word-number to an integer.
+ *  Returns NaN if not recognized. */
+function toVerseNum(s: string): number {
+  const trimmed = s.trim().toLowerCase().replace(/\.\s*/g, "").replace(/\s+/g, "-");
+  if (/^\d+$/.test(s.trim())) return parseInt(s.trim(), 10);
+  return WORD_NUMS[trimmed] ?? NaN;
+}
+
+/** Pre-process text to normalize word numbers in spoken scripture patterns
+ *  so the regex can match digit-only groups. */
+export function normalizeSpokenNumbers(text: string): string {
+  // Replace "verse four" / "verses four through fifteen" etc. with digits
+  const wordNumPat = Object.keys(WORD_NUMS)
+    .sort((a, b) => b.length - a.length) // longest first to avoid partial matches
+    .map((w) => w.replace(/-/g, "[\\s-]"))
+    .join("|");
+  // Replace word numbers that follow chapter/verse keywords
+  return text.replace(
+    new RegExp(
+      `\\b(chapters?|verses?|chapter|verse)([\\s.,;:]+)(${wordNumPat})\\b`,
+      "gi"
+    ),
+    (_m, kw, sep, word) => {
+      const num = toVerseNum(word);
+      return isNaN(num) ? _m : `${kw}${sep}${num}`;
+    }
+  );
+}
+
 // Matches spoken-style "Book chapter X verse(s) Y [to|through|and Z]".
 // Allows punctuation/line breaks between words: "Exodus chapter. 14. verses. 21 to 31".
 const SEP = `[\\s.,;:\\-–]{1,8}`;
@@ -176,10 +220,13 @@ function makeParsed(bookName: string, chapter: number, verse: number, endVerse?:
 export function findReferences(text: string): RefMatch[] {
   const matches: RefMatch[] = [];
 
+  // Normalize word numbers before running regexes ("verse four" → "verse 4")
+  const normalized = normalizeSpokenNumbers(text);
+
   // 1. Spoken "chapter X verse Y" form first (longest, would otherwise be missed).
   CHAPTER_VERSE_REGEX.lastIndex = 0;
   let m: RegExpExecArray | null;
-  while ((m = CHAPTER_VERSE_REGEX.exec(text)) !== null) {
+  while ((m = CHAPTER_VERSE_REGEX.exec(normalized)) !== null) {
     const parsed = makeParsed(m[1], parseInt(m[2], 10), parseInt(m[3], 10), m[4] ? parseInt(m[4], 10) : undefined);
     if (parsed) {
       matches.push({ start: m.index, end: m.index + m[0].length, raw: m[0], parsed });
@@ -188,7 +235,7 @@ export function findReferences(text: string): RefMatch[] {
 
   // 2. Standard / short spoken form. Skip overlaps with chapter-verse matches.
   REF_REGEX.lastIndex = 0;
-  while ((m = REF_REGEX.exec(text)) !== null) {
+  while ((m = REF_REGEX.exec(normalized)) !== null) {
     const start = m.index;
     const end = m.index + m[1].length;
     if (matches.some((x) => start < x.end && end > x.start)) continue;
