@@ -22,7 +22,7 @@ export const upsertSpeaker = createServerFn({ method: "POST" })
       .maybeSingle();
 
     if (existing) {
-      const patch: Record<string, unknown> = {};
+      const patch: { congregation?: string; role?: string } = {};
       if (data.congregation && data.congregation !== existing.congregation) patch.congregation = data.congregation;
       if (data.role && data.role !== existing.role) patch.role = data.role;
       if (Object.keys(patch).length > 0) {
