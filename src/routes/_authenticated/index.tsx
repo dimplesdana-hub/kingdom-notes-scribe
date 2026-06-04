@@ -180,7 +180,9 @@ function RecordPage() {
               {session.title || "Tap to add talk title"}
             </div>
             <div className="mt-0.5 truncate text-xs text-muted-foreground">
-              {session.speaker || "Speaker not set"}{session.congregation ? ` · ${session.congregation}` : ""}
+              {session.speaker
+                ? `${honorific(session.role) ? honorific(session.role) + " " : ""}${session.speaker}${session.congregation ? ` · ${session.congregation}` : ""}`
+                : "Speaker not set"}
             </div>
           </div>
           <ChevronDown className="mt-1 h-5 w-5 shrink-0 text-muted-foreground" />
