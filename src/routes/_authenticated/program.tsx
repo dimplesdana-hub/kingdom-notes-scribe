@@ -121,7 +121,7 @@ function Card({ title, subtitle, children }: { title: string; subtitle?: string;
   return (
     <div className="rounded-2xl bg-card p-4 shadow-card">
       <div className="mb-3">
-        <div className="text-sm font-semibold text-foreground">{title}</div>
+        <h2 className="text-sm font-semibold text-foreground">{title}</h2>
         {subtitle && <div className="text-xs text-muted-foreground">{subtitle}</div>}
       </div>
       {children}

@@ -173,7 +173,7 @@ function RecordPage() {
 
   return (
     <PageShell
-      title="Kingdom Notes"
+      title="Record"
       right={
         <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Circle className={`h-2.5 w-2.5 fill-current ${status === "recording" ? "text-emerald-500" : "text-emerald-500"}`} />
