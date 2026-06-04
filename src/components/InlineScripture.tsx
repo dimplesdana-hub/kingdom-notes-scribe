@@ -27,42 +27,18 @@ export function InlineScripture({ reference }: { reference: string }) {
   const fetchVerse = useServerFn(fetchScripture);
 
   useEffect(() => {
-    if (!open || text || loading || failed) return;
+    if (!open || text || failed) return;
     let cancelled = false;
+    let settled = false;
     setLoading(true);
 
-    // Client-side hard timeout: never show "Loading…" longer than 3s.
-    const timeout = setTimeout(() => {
-      if (cancelled) return;
-      const local = SCRIPTURE_TEXT_HAS(reference) ? lookupScripture(reference) : null;
-      if (local) {
-        verseCache.set(reference, local);
-        setText(local);
+    const finish = (nextText: string | null) => {
+      if (cancelled || settled) return;
+      settled = true;
+      if (nextText) {
+        verseCache.set(reference, nextText);
+        setText(nextText);
       } else {
-        setFailed(true);
-      }
-      setLoading(false);
-      cancelled = true;
-    }, 3000);
-
-    fetchVerse({ data: { reference } })
-      .then((res) => {
-        if (cancelled) return;
-        if (res.text) {
-          verseCache.set(reference, res.text);
-          setText(res.text);
-        } else {
-          const local = SCRIPTURE_TEXT_HAS(reference) ? lookupScripture(reference) : null;
-          if (local) {
-            verseCache.set(reference, local);
-            setText(local);
-          } else {
-            setFailed(true);
-          }
-        }
-      })
-      .catch(() => {
-        if (cancelled) return;
         const local = SCRIPTURE_TEXT_HAS(reference) ? lookupScripture(reference) : null;
         if (local) {
           verseCache.set(reference, local);
@@ -70,19 +46,23 @@ export function InlineScripture({ reference }: { reference: string }) {
         } else {
           setFailed(true);
         }
-      })
-      .finally(() => {
-        if (cancelled) return;
-        clearTimeout(timeout);
-        setLoading(false);
-        cancelled = true;
-      });
+      }
+      setLoading(false);
+    };
+
+    // Hard 4s timeout — never show "Loading…" longer than this.
+    const timeout = setTimeout(() => finish(null), 4000);
+
+    fetchVerse({ data: { reference } })
+      .then((res) => finish(res?.text ?? null))
+      .catch(() => finish(null));
 
     return () => {
       cancelled = true;
       clearTimeout(timeout);
     };
-  }, [open, reference, text, loading, failed, fetchVerse]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, reference]);
 
   const parsed = parseReference(reference);
   const fallbackUrl = parsed ? buildStudyBibleUrl(parsed) : null;
