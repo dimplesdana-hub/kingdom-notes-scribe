@@ -5,7 +5,12 @@ import { PageShell } from "@/components/PageShell";
 import { weekendProgram, midweekProgram, conventionProgram } from "@/lib/sample-data";
 
 export const Route = createFileRoute("/_authenticated/program")({
-  head: () => ({ meta: [{ title: "Program — Kingdom Notes" }] }),
+  head: () => ({
+    meta: [
+      { title: "Program — Kingdom Notes" },
+      { name: "description", content: "Browse weekend and midweek meeting programs, convention schedules, and upcoming assembly agendas." },
+    ],
+  }),
   component: ProgramPage,
 });
 

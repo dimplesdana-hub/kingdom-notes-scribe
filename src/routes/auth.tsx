@@ -4,7 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({ meta: [{ title: "Sign in — Kingdom Notes" }] }),
+  head: () => ({
+    meta: [
+      { title: "Sign in — Kingdom Notes" },
+      { name: "description", content: "Sign in to Kingdom Notes to save transcripts, access meeting programs, and manage your recordings." },
+    ],
+  }),
   component: AuthPage,
 });
 

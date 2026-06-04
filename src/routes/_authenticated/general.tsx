@@ -5,7 +5,12 @@ import { PageShell } from "@/components/PageShell";
 import { useFolders } from "@/lib/folders";
 
 export const Route = createFileRoute("/_authenticated/general")({
-  head: () => ({ meta: [{ title: "General — Kingdom Notes" }] }),
+  head: () => ({
+    meta: [
+      { title: "General — Kingdom Notes" },
+      { name: "description", content: "Organize non-religious recordings like work meetings, interviews, and personal notes into folders." },
+    ],
+  }),
   component: GeneralPage,
 });
 

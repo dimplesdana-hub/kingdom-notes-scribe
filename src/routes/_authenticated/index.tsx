@@ -16,7 +16,12 @@ import { detectSpeaker, formatSpeaker, honorific, type SpeakerRole } from "@/lib
 import { upsertSpeaker, findSpeakerByName } from "@/lib/speakers.functions";
 
 export const Route = createFileRoute("/_authenticated/")({
-  head: () => ({ meta: [{ title: "Record — Kingdom Notes" }] }),
+  head: () => ({
+    meta: [
+      { title: "Record — Kingdom Notes" },
+      { name: "description", content: "Record meetings, assemblies, and conventions with live transcription and automatic scripture detection." },
+    ],
+  }),
   component: RecordPage,
 });
 

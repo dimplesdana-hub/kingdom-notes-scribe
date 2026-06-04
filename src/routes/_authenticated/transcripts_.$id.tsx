@@ -13,7 +13,12 @@ import { findReferences } from "@/lib/bible-books";
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export const Route = createFileRoute("/_authenticated/transcripts_/$id")({
-  head: () => ({ meta: [{ title: "Transcript — Kingdom Notes" }] }),
+  head: () => ({
+    meta: [
+      { title: "Transcript — Kingdom Notes" },
+      { name: "description", content: "Read the full transcript with scripture highlights, AI-generated summary, and detected action items." },
+    ],
+  }),
   component: TranscriptDetailPage,
   notFoundComponent: () => (
     <div className="p-8 text-center text-muted-foreground">Transcript not found.</div>

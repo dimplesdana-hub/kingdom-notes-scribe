@@ -7,7 +7,12 @@ import { ShareSheet } from "@/components/ShareSheet";
 import { useFolders } from "@/lib/folders";
 
 export const Route = createFileRoute("/_authenticated/transcripts")({
-  head: () => ({ meta: [{ title: "Transcripts — Kingdom Notes" }] }),
+  head: () => ({
+    meta: [
+      { title: "Transcripts — Kingdom Notes" },
+      { name: "description", content: "Search, organize, and review all your saved transcripts with scripture references and AI summaries." },
+    ],
+  }),
   component: TranscriptsPage,
 });
 
