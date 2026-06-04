@@ -147,7 +147,7 @@ const REF_REGEX = new RegExp(
 
 // Matches spoken-style "Book chapter X verse(s) Y [to|through|and Z]".
 // Allows punctuation/line breaks between words: "Exodus chapter. 14. verses. 21 to 31".
-const SEP = `[\\s.,;:\\-–\\n\\r]+`;
+const SEP = `[\\s.,;:\\-–]{1,8}`;
 const CHAPTER_VERSE_REGEX = new RegExp(
   `\\b(${BOOK_ALT})\\.?${SEP}chapters?${SEP}(\\d+)${SEP}verses?${SEP}(\\d+)(?:${SEP}(?:to|thru|through|and|[-–])${SEP}(\\d+))?`,
   "gi",
