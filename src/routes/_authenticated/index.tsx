@@ -107,7 +107,11 @@ function RecordPage() {
     }
   };
 
-  const paragraphs = live.finals.map((text) => ({ speaker: session.speaker || "Speaker", text }));
+  const speakerLabel = session.speaker || "Speaker";
+  const paragraphs = groupFinalsBySentences(live.finals, 5).map((text) => ({
+    speaker: speakerLabel,
+    text,
+  }));
 
   return (
     <PageShell
@@ -221,6 +225,26 @@ function fmtDuration(totalSec: number): string {
   if (totalSec < 60) return `${totalSec} sec`;
   const m = Math.round(totalSec / 60);
   return `${m} min`;
+}
+
+/** Accumulate live final turns into blocks of at least `minSentences` sentences
+ *  so we don't render a new card for every short utterance. */
+function groupFinalsBySentences(finals: string[], minSentences = 5): string[] {
+  const blocks: string[] = [];
+  let current = "";
+  let count = 0;
+  for (const f of finals) {
+    if (current && count >= minSentences) {
+      blocks.push(current);
+      current = "";
+      count = 0;
+    }
+    current = current ? `${current} ${f}` : f;
+    const m = f.match(/[.!?]+(\s|$)/g);
+    count += m ? m.length : 0;
+  }
+  if (current) blocks.push(current);
+  return blocks;
 }
 
 function SessionEditor({ session, onSave, onClose }: { session: any; onSave: (s: any) => void; onClose: () => void }) {

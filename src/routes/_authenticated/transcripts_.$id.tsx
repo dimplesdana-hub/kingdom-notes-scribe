@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, FileText, Sparkles, ListChecks, BookOpen, Share2, Loader2 } from "lucide-react";
@@ -8,6 +8,7 @@ import { ScriptureText } from "@/components/ScriptureText";
 import { InlineScripture } from "@/components/InlineScripture";
 import { ShareSheet } from "@/components/ShareSheet";
 import { getTranscript } from "@/lib/summarize.functions";
+import { findReferences } from "@/lib/bible-books";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -39,6 +40,7 @@ interface ViewModel {
   date: string;
   duration: string;
   body: { time: string; speaker: string; text: string }[];
+  fullText: string;
   summary: string[];
   actionItems: string[];
   scriptures: string[];
@@ -54,7 +56,8 @@ function sampleToView(t: Transcript): ViewModel {
     congregation: t.congregation,
     date: t.date,
     duration: t.duration,
-    body: t.body,
+    body: groupTurnsBySpeaker(t.body),
+    fullText: t.body.map((b) => b.text).join("\n\n"),
     summary: t.summary,
     actionItems: t.actionItems,
     scriptures: t.scriptures,
@@ -66,7 +69,10 @@ function sampleToView(t: Transcript): ViewModel {
 function rowToView(row: any): ViewModel {
   const fullText: string = row.full_text ?? "";
   const speakerName: string = row.speaker || "Speaker";
-  const body = fullText
+  // Each \n\n-separated chunk is one turn. Group consecutive same-speaker turns
+  // into a single card. With no diarization, all chunks share the session
+  // speaker → collapses to one card.
+  const turns = fullText
     .split(/\n{2,}/)
     .map((t) => t.trim())
     .filter(Boolean)
@@ -78,13 +84,31 @@ function rowToView(row: any): ViewModel {
     congregation: row.congregation ?? "",
     date: row.date ?? "",
     duration: row.duration ?? "",
-    body,
+    body: groupTurnsBySpeaker(turns),
+    fullText,
     summary: Array.isArray(row.summary) ? row.summary : [],
     actionItems: Array.isArray(row.action_items) ? row.action_items : [],
     scriptures: Array.isArray(row.scriptures) ? row.scriptures : [],
     summaryStatus: (row.summary_status ?? "idle") as ViewModel["summaryStatus"],
     summaryError: row.summary_error ?? null,
   };
+}
+
+/** Merge consecutive turns from the same speaker into one card.
+ *  Non-consecutive turns from the same speaker stay separate. */
+function groupTurnsBySpeaker(
+  turns: { time: string; speaker: string; text: string }[],
+): { time: string; speaker: string; text: string }[] {
+  const out: { time: string; speaker: string; text: string }[] = [];
+  for (const t of turns) {
+    const last = out[out.length - 1];
+    if (last && last.speaker === t.speaker) {
+      last.text = `${last.text} ${t.text}`.trim();
+    } else {
+      out.push({ ...t });
+    }
+  }
+  return out;
 }
 
 function TranscriptDetailPage() {
@@ -209,7 +233,7 @@ function TranscriptDetailPage() {
             busyLabel="Extracting action items…"
           />
         )}
-        {tab === "scriptures" && <ScripturesTab refs={t.scriptures} />}
+        {tab === "scriptures" && <ScripturesTab refs={t.scriptures} fullText={t.fullText} />}
       </main>
     </div>
   );
@@ -279,11 +303,16 @@ function AiList({
   );
 }
 
-function ScripturesTab({ refs }: { refs: string[] }) {
-  if (!refs.length) return <Empty msg="No scriptures detected in this recording." />;
+function ScripturesTab({ refs, fullText }: { refs: string[]; fullText: string }) {
+  const list = useMemo(() => {
+    if (refs.length) return refs;
+    if (!fullText) return [];
+    return Array.from(new Set(findReferences(fullText).map((r) => r.parsed.display)));
+  }, [refs, fullText]);
+  if (!list.length) return <Empty msg="No scriptures detected in this recording." />;
   return (
     <ul className="space-y-2">
-      {refs.map((r) => (
+      {list.map((r) => (
         <li key={r} className="rounded-2xl bg-card p-4 shadow-card">
           <InlineScripture reference={r} />
         </li>

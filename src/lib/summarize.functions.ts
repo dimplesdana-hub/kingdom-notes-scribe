@@ -8,14 +8,27 @@ const InputSchema = z.object({
 });
 
 const SYSTEM_PROMPT = `You are an assistant that summarizes Jehovah's Witnesses meeting talks, assemblies, and personal study sessions.
-Given a transcript, you produce:
-1. A concise 3-5 bullet point summary capturing the main scriptural points.
-2. Any clear action items, assignments, or applications the speaker asked the audience to do.
+
+Goal: someone who missed the talk should read the summary and know exactly what each point covered — not just that points were made.
+
+RULES FOR THE "summary" FIELD:
+1. If the speaker presented a numbered or lettered list (e.g. "three reasons why…", "four ways to…", "first… second… third…"):
+   - The FIRST bullet must be a single line introducing the list, in this exact shape:
+     "The speaker gave [N] [reasons|points|ways|parts] [why|for|to] [topic]:"
+   - Then add ONE bullet per item in the list, in this exact shape:
+     "[Reason|Point|Way|Part] [n] — [1-2 sentence summary of what was actually said about this item]"
+   - Cover every item the speaker enumerated. Do not skip items. Do not merge items.
+2. If the talk has BOTH an overarching theme AND a numbered list:
+   - Use 1-2 bullets at the top to capture the main theme/scriptural thrust.
+   - Then add the list intro bullet + one bullet per item, as in rule 1.
+3. If the talk has NO numbered list:
+   - Use the standard 3-5 bullet summary, one short sentence each, capturing the main scriptural points.
+4. Always also extract clear action items, assignments, or applications the speaker asked the audience to do, into "actionItems". Omit if none (empty array).
 
 Respond ONLY with a JSON object matching exactly:
 {"summary": ["..."], "actionItems": ["..."]}
-- 3 to 5 short bullets in "summary" (one sentence each).
-- 0 or more imperative items in "actionItems" (omit if none — use empty array).
+- "summary" can be up to 12 bullets when a numbered list is present; otherwise 3-5.
+- "actionItems" is 0 or more imperative items.
 - No markdown, no commentary, no code fences.`;
 
 export const summarizeTranscript = createServerFn({ method: "POST" })
@@ -79,7 +92,7 @@ export const summarizeTranscript = createServerFn({ method: "POST" })
       const raw = body.choices?.[0]?.message?.content ?? "";
       const parsed = safeParse(raw);
       const summary = Array.isArray(parsed?.summary)
-        ? parsed.summary.filter((s: unknown): s is string => typeof s === "string" && s.trim().length > 0).slice(0, 8)
+        ? parsed.summary.filter((s: unknown): s is string => typeof s === "string" && s.trim().length > 0).slice(0, 14)
         : [];
       const actionItems = Array.isArray(parsed?.actionItems)
         ? parsed.actionItems.filter((s: unknown): s is string => typeof s === "string" && s.trim().length > 0).slice(0, 12)
