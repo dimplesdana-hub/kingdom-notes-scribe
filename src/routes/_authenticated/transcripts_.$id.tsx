@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, FileText, Sparkles, ListChecks, BookOpen, Share2, Loader2 } from "lucide-react";
@@ -8,6 +8,7 @@ import { ScriptureText } from "@/components/ScriptureText";
 import { InlineScripture } from "@/components/InlineScripture";
 import { ShareSheet } from "@/components/ShareSheet";
 import { getTranscript } from "@/lib/summarize.functions";
+import { findReferences } from "@/lib/bible-books";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
