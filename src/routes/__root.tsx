@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ThemeProvider } from "../lib/theme";
 import { BottomTabBar } from "../components/BottomTabBar";
+import { Toaster } from "../components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -124,6 +125,7 @@ function RootComponent() {
         <div className="min-h-screen bg-background">
           <Outlet />
           <BottomTabBar />
+          <Toaster />
         </div>
       </ThemeProvider>
     </QueryClientProvider>

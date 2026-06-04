@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { Mic, Square, Pause, Play, Plus, ChevronDown, Circle, Loader2 } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { ScriptureText } from "@/components/ScriptureText";
@@ -11,6 +12,8 @@ import {
   createTranscriptFromRecording,
   summarizeTranscript,
 } from "@/lib/summarize.functions";
+import { detectSpeaker, formatSpeaker, honorific, type SpeakerRole } from "@/lib/speaker-detect";
+import { upsertSpeaker, findSpeakerByName } from "@/lib/speakers.functions";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({ meta: [{ title: "Record — Kingdom Notes" }] }),
@@ -33,12 +36,51 @@ function RecordPage() {
     speaker: "",
     congregation: "",
     title: "",
+    role: "unknown" as SpeakerRole,
   });
+  const [speakerAutoFilled, setSpeakerAutoFilled] = useState(false);
   const timerRef = useRef<number | null>(null);
   const live = useLiveTranscription();
   const navigate = useNavigate();
   const createTranscript = useServerFn(createTranscriptFromRecording);
   const summarize = useServerFn(summarizeTranscript);
+  const saveSpeaker = useServerFn(upsertSpeaker);
+  const lookupSpeaker = useServerFn(findSpeakerByName);
+
+  // Speaker detection: scan finals as they arrive; only auto-fill once per recording
+  // and only when the user hasn't manually entered a speaker name.
+  useEffect(() => {
+    if (speakerAutoFilled) return;
+    if (session.speaker) return;
+    if (live.finals.length === 0) return;
+    const text = live.finals.join(" ");
+    const det = detectSpeaker(text);
+    if (!det) return;
+    setSpeakerAutoFilled(true);
+    setSession((s) => ({
+      ...s,
+      speaker: det.name,
+      congregation: det.congregation ?? s.congregation,
+      role: det.role,
+    }));
+    toast(`Speaker detected: ${formatSpeaker(det.role, det.name)}${det.congregation ? ` from ${det.congregation}` : ""}`, {
+      description: "Tap the speaker name to edit.",
+    });
+    // Save to speakers table (and remember for future recordings)
+    saveSpeaker({
+      data: { name: det.name, congregation: det.congregation, role: det.role },
+    }).catch((e) => console.error("upsertSpeaker failed:", e));
+    // If no congregation detected, see if we have remembered one
+    if (!det.congregation) {
+      lookupSpeaker({ data: { name: det.name } })
+        .then(({ speaker }) => {
+          if (speaker?.congregation) {
+            setSession((s) => (s.congregation ? s : { ...s, congregation: speaker.congregation! }));
+          }
+        })
+        .catch(() => {});
+    }
+  }, [live.finals, speakerAutoFilled, session.speaker, saveSpeaker, lookupSpeaker]);
 
   useEffect(() => {
     if (status === "recording") {
@@ -94,11 +136,22 @@ function RecordPage() {
           scriptures,
         },
       });
+      // Persist speaker memory if we have a name
+      if (session.speaker) {
+        saveSpeaker({
+          data: {
+            name: session.speaker,
+            congregation: session.congregation || null,
+            role: session.role,
+          },
+        }).catch((e) => console.error("upsertSpeaker failed:", e));
+      }
       // Fire-and-forget AI summary. The detail page polls for completion.
       summarize({ data: { transcriptId: id, text: fullText } }).catch((e) =>
         console.error("Summarize failed:", e),
       );
       live.reset();
+      setSpeakerAutoFilled(false);
       navigate({ to: "/transcripts/$id", params: { id } });
     } catch (e: any) {
       setSaveError(e?.message ?? "Could not save transcript");
@@ -138,7 +191,9 @@ function RecordPage() {
               {session.title || "Tap to add talk title"}
             </div>
             <div className="mt-0.5 truncate text-xs text-muted-foreground">
-              {session.speaker || "Speaker not set"}{session.congregation ? ` · ${session.congregation}` : ""}
+              {session.speaker
+                ? `${honorific(session.role) ? honorific(session.role) + " " : ""}${session.speaker}${session.congregation ? ` · ${session.congregation}` : ""}`
+                : "Speaker not set"}
             </div>
           </div>
           <ChevronDown className="mt-1 h-5 w-5 shrink-0 text-muted-foreground" />
