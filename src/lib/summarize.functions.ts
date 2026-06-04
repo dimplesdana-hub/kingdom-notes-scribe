@@ -92,7 +92,7 @@ export const summarizeTranscript = createServerFn({ method: "POST" })
       const raw = body.choices?.[0]?.message?.content ?? "";
       const parsed = safeParse(raw);
       const summary = Array.isArray(parsed?.summary)
-        ? parsed.summary.filter((s: unknown): s is string => typeof s === "string" && s.trim().length > 0).slice(0, 8)
+        ? parsed.summary.filter((s: unknown): s is string => typeof s === "string" && s.trim().length > 0).slice(0, 14)
         : [];
       const actionItems = Array.isArray(parsed?.actionItems)
         ? parsed.actionItems.filter((s: unknown): s is string => typeof s === "string" && s.trim().length > 0).slice(0, 12)
