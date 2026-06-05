@@ -95,6 +95,10 @@ function SettingsPage() {
       <Section title="About">
         <div className="px-4 py-3">
           <div className="flex items-center gap-2 text-sm text-foreground"><Info className="h-4 w-4 text-muted-foreground" /> Version 1.0.0</div>
+          <div className="mt-1.5 flex items-center gap-2 text-xs font-mono text-muted-foreground">
+            <span className="select-all">{__GIT_COMMIT_SHA__.slice(0, 7)}</span>
+            <span className="text-[10px] opacity-60">({__BUILD_TIME__})</span>
+          </div>
           <p className="mt-2 text-sm text-muted-foreground italic">"Kingdom Notes — Built to Enhance Review & Study"</p>
           <div className="mt-3 flex gap-4 text-xs text-primary">
             <a href="#">Privacy Policy</a>
