@@ -96,7 +96,15 @@ function SettingsPage() {
         <div className="px-4 py-3">
           <div className="flex items-center gap-2 text-sm text-foreground"><Info className="h-4 w-4 text-muted-foreground" /> Version 1.0.0</div>
           <div className="mt-1.5 flex items-center gap-2 text-xs font-mono text-muted-foreground">
-            <span className="select-all">{__GIT_COMMIT_SHA__.slice(0, 7)}</span>
+            <a
+              href={`https://github.com/dimplesdana-hub/kingdom-notes-scribe/commit/${__GIT_COMMIT_SHA__}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="select-all text-primary underline-offset-2 hover:underline"
+              title="View commit on GitHub"
+            >
+              {__GIT_COMMIT_SHA__.slice(0, 7)}
+            </a>
             <span className="text-[10px] opacity-60">({__BUILD_TIME__})</span>
           </div>
           <p className="mt-2 text-sm text-muted-foreground italic">"Kingdom Notes — Built to Enhance Review & Study"</p>
