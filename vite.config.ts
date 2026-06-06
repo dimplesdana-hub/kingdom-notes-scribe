@@ -8,8 +8,10 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { execSync } from "child_process";
 
 let gitCommitSha = "unknown";
+let gitPreviousSha = "unknown";
 try {
   gitCommitSha = execSync("git rev-parse HEAD", { encoding: "utf-8" }).trim();
+  gitPreviousSha = execSync("git rev-parse HEAD~1", { encoding: "utf-8" }).trim();
 } catch {
   // git not available or not a repo
 }
@@ -32,6 +34,7 @@ export default defineConfig({
   vite: {
     define: {
       __GIT_COMMIT_SHA__: JSON.stringify(gitCommitSha),
+      __GIT_PREVIOUS_SHA__: JSON.stringify(gitPreviousSha),
       __BUILD_TIME__: JSON.stringify(buildTime),
     },
   },
