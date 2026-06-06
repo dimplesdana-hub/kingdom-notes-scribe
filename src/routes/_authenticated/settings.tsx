@@ -106,6 +106,15 @@ function SettingsPage() {
               {__GIT_COMMIT_SHA__.slice(0, 7)}
             </a>
             <span className="text-[10px] opacity-60">({__BUILD_TIME__})</span>
+            <a
+              href={`https://github.com/dimplesdana-hub/kingdom-notes-scribe/compare/${__GIT_PREVIOUS_SHA__}...${__GIT_COMMIT_SHA__}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-1 text-primary underline-offset-2 hover:underline"
+              title="Compare with previous commit on GitHub"
+            >
+              compare
+            </a>
           </div>
           <p className="mt-2 text-sm text-muted-foreground italic">"Kingdom Notes — Built to Enhance Review & Study"</p>
           <div className="mt-3 flex gap-4 text-xs text-primary">
