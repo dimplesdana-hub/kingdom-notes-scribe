@@ -34,6 +34,7 @@ export default defineConfig({
   vite: {
     define: {
       __GIT_COMMIT_SHA__: JSON.stringify(gitCommitSha),
+      __GIT_PREVIOUS_SHA__: JSON.stringify(gitPreviousSha),
       __BUILD_TIME__: JSON.stringify(buildTime),
     },
   },
