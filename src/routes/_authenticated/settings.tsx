@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Moon, Sun, Upload, Download, Cloud, Info, ChevronRight, BookOpen } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
+import { SyncStatus } from "@/components/SyncStatus";
 import { useTheme } from "@/lib/theme";
 
 export const Route = createFileRoute("/_authenticated/settings")({
