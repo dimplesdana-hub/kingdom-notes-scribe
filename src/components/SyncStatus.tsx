@@ -143,15 +143,21 @@ export function SyncStatus() {
         </div>
       )}
 
-      {result && commitsBehindMain > 0 && (
+      {result && (
         <a
           href={`https://github.com/${REPO}/compare/${builtSha}...main`}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
         >
-          View changes on GitHub <ExternalLink className="h-3 w-3" />
+          Open GitHub changes <ExternalLink className="h-3 w-3" />
         </a>
+      )}
+
+      {result && commitsBehindMain > 0 && (
+        <div className="text-[10px] text-muted-foreground">
+          {commitsBehindMain} commit{commitsBehindMain === 1 ? "" : "s"} behind main
+        </div>
       )}
 
       {checkedAt && (
